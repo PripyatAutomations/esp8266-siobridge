@@ -1,0 +1,18 @@
+<!doctype html5>
+<html>
+ <head>
+  <title>stm32repeater file upload</title>
+  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+ </head>
+ <body>
+  <h3>File Upload</h3>
+  <form action="/upload" enctype="multipart/form-data" method="post">
+   <label for="file">File</label>
+   <input type="file" id="file" name="file"><br/>
+   <input type="submit" value="Upload"/>
+   <input type="reset" value="Reset"/><br/>
+  </form>
+  <a href="/">Go Back</a>
+ </body>
+</html>

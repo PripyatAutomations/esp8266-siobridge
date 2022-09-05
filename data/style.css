@@ -1,0 +1,9 @@
+html, body {
+    background: black;
+    color: #c0c0c0;
+}
+
+a, a:hover, a:active, a:visited {
+    color: LightSteelBlue;
+    text-decoration: underline;
+}

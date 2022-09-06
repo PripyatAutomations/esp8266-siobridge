@@ -1,3 +1,4 @@
+/* TODO: Make this fully async */
 #include "siobridge.h"
 bool spiffsActive = false;
 ESP8266WebServer httpServer(80);

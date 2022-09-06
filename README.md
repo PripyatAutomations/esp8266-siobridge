@@ -8,3 +8,10 @@ data/config.txt to contain a power on configuration.
 
 Then run 'make world upload upload_fs' to build and install on your
 connected esp8266.
+
+
+Needed Libraries
+----------------
+esp8266-core
+ESPAsyncTCP
+ESPAsyncWebserver

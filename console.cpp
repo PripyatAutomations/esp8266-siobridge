@@ -1,3 +1,7 @@
+/*
+ * provide a simple console for setting up the device and chosing which port to connect
+ *
+ */
 #include "siobridge.h"
 const char *s_connected = "connected";
 const char *s_disconnected = "disconencted";
@@ -54,7 +58,7 @@ bool cmd_main_help(void) {
    Serial.println("* esp8266-siobridge console help *");
    Serial.println("**********************************");
    Serial.println("");
-   Serial.printf(" C <#>\tConnect to channel <#>\n");
+   Serial.printf(" C <#>\tConnect to port <#>\n");
    Serial.printf(" I    \tInformation screen\n");
    Serial.printf(" S    \tSetup Menu\n");
 }
@@ -115,11 +119,25 @@ bool cmd_setup_help(void) {
    Serial.println("X\tLeave setup menu");
 }
 
+extern Menu menu_main[], menu_setup[], menu_wifi[];
+
 Menu menu_main[] = {
    { 'C', cmd_connect, NULL },
    { 'I', cmd_info, NULL },
    { 'S', cmd_setup_help, NULL },
    { 0, NULL, NULL }
+};
+
+Menu menu_setup[] = {
+   { '0', cmd_connect, NULL },
+   { '1', cmd_connect, NULL },
+   { '2', cmd_connect, NULL },
+   { '3', cmd_connect, NULL },
+   { '4', cmd_connect, NULL },
+   { '5', cmd_connect, NULL },
+   { 'R', cmd_restart, NULL },
+   { 'W', NULL, menu_wifi },
+   { 'X', NULL, menu_main }
 };
 
 Menu menu_wifi[] = {
@@ -132,5 +150,6 @@ Menu menu_wifi[] = {
    { 'P', cmd_wifi_pass, NULL },
    { 'S', cmd_wifi_ssid, NULL },
    { 'T', cmd_wifi_ntp, NULL },
+   { 'X', NULL, menu_main },
    { 0, NULL, NULL },
 };

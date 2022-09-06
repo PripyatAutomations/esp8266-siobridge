@@ -1,25 +1,9 @@
-#define	VERSION "20220905.01"
-#include <Arduino.h>
-#include <ESP8266WiFi.h> 
-#include <Hash.h>
-#include <DNSServer.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
-#include <WiFiManager.h>
-#include <FS.h>
-#include <string.h>
-
-/* Wait up to 300 seconds (5 minutes) in the WiFi config (AP) mode before restarting */
-#define AP_CONFIG_TIMEOUT 300
-#define AP_SSID   "REPEATER ADMIN"
-#define ADMIN_USER "admin"
-#define ADMIN_PASS "admin"
-extern bool config_load(void);
+#include "siobridge.h"
 bool spiffsActive = false;
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
-const char* update_username = ADMIN_USER;
-const char* update_password = ADMIN_PASS;
+const char *update_username = ADMIN_USER;
+const char *update_password = ADMIN_PASS;
 
 //#define MAX_SRV_CLIENTS 1
 WiFiServer server(23);
@@ -50,7 +34,7 @@ void flash_init() {
    }
 }
 
-void setup() {
+void main_setup(void) {
    /* enable reset pin */
    pinMode(RESET_PIN, INPUT_PULLUP);
 
@@ -78,7 +62,7 @@ void setup() {
    config_load();
 
    Serial.println("* Activating WiFi");
-   /* try to connect to saved wifi, if not give REPEATER ADMIN AP for config */
+   /* try to connect to saved wifi, if not give AP for config */
    wifiManager.setConfigPortalTimeout(AP_CONFIG_TIMEOUT);
    wifiManager.autoConnect(AP_SSID);
 
@@ -92,16 +76,23 @@ void setup() {
    });
    /* Point / at index.html */
    httpServer.serveStatic("/", SPIFFS, "/index.html");
+
+   /* add static files */
    while(rnode.next()) {
       File file = rnode.openFile("r");
 
       /* Skip some files that shouldn't be served to users */
-      if (strncasecmp(file.name(), "/config.txt", 11) == 0) {
+      if (strncasecmp(file.name(), "/config.txt", 11) == 0 ||
+          strncasecmp(file.name(), "/passwd", 6) == 0) {
+#if	defined(DEBUG)
          Serial.printf("* skip %s (system config)\r\n", file.name());
+#endif
          continue;
       }
 
+#if	defined(DEBUG)
       Serial.printf("* + %s\r\n", file.name());
+#endif
       httpServer.serveStatic(file.name(), SPIFFS, file.name());
    }
 
@@ -116,11 +107,14 @@ void setup() {
       httpServer.send(200, "text/html", "Status isn't ready yet...\n");
    });
    httpServer.on("/wifi", []() {
-      Serial.println("*** Switching to AP mode for configuration by admin request");
+      String content = "Please connect to ";
+             content += AP_SSID;
+             content += " AP and configure then <a href=\"/\">Click Here</a> to open configuration page.\n";
+      Serial.println("*** Switching to AP mode for configuration by admin request ***");
 
-      httpServer.send(200, "text/html", "Please connect to REPEATER_ADMIN AP and configure then <a href=\"/\">Click Here</a> to open configuration page.\n");
+      httpServer.send(200, "text/html", content);
 
-      if (!wifiManager.startConfigPortal("REPEATER ADMIN")) {
+      if (!wifiManager.startConfigPortal(AP_SSID)) {
          Serial.println("failed to connect and hit timeout");
          delay(3000);
          ESP.restart();
@@ -133,16 +127,19 @@ void setup() {
 }
 
 
-void AcceptConnection() {
+void AcceptConnection(void) {
    if (serverClient && serverClient.connected()) 
       serverClient.stop();
 
    serverClient = server.available();
-   serverClient.write("CONNECT 115200\n");
+   serverClient.write("esp8266-siobridge ");
+   serverClient.write(VERSION);
+   serverClient.write(" ready!\n");
 }
 
-void ManageConnected() {
+void ManageConnected(void) {
    size_t rxlen = serverClient.available();
+
    if (rxlen > 0) {
       uint8_t sbuf[rxlen];
       serverClient.readBytes(sbuf, rxlen);
@@ -158,8 +155,7 @@ void ManageConnected() {
     }
 }
 
-
-void loop() {
+void main_loop(void) {
    /* Accept new pending telnet clients */
    if (server.hasClient())
       AcceptConnection();

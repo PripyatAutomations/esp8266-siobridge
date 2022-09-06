@@ -12,3 +12,11 @@ cli_ssid=WifiNetwork
 cli_pass=password
 admin_user=admin
 admin_pass=password
+
+# serial configuration
+# We can support quite a few serial ports, how many are enabled?
+ports=2
+sio0.tx=22
+sio0.rx=21
+sio1.tx=4
+sio1.rx=3

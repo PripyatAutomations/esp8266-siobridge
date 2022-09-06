@@ -1,3 +1,4 @@
+/* This is just to keep arduino IDE happy. Everything lives in main.c */
 #include "siobridge.h"
 extern void main_loop(void);
 extern void main_setup(void);

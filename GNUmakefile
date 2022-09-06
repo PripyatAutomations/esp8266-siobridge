@@ -12,7 +12,7 @@ world:
 
 clean:
 
-install:
+install-fw: upload upload-fs
 
 connect:
 	picocom --baud 115200 /dev/ttyUSB0 

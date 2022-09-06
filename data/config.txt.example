@@ -1,1 +1,14 @@
-callsign K8SEL
+# Repeater's callsign
+callsign=N0CALL
+# modes: auto, ap, cli
+wifi_mode=auto
+# SSID for configuration AP
+ap_ssid=REPEATER ADMIN
+ap_pass=
+# Wait in Configuration AP 300 sec before reboot and try again
+ap_wait=300
+# WiFi client settings
+cli_ssid=WifiNetwork
+cli_pass=password
+admin_user=admin
+admin_pass=password

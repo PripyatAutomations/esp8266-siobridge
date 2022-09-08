@@ -12,9 +12,7 @@ OTA_PWD=admin
 
 LIBS += ESPAsyncTCP ESPAsyncWebServer
 include *.mk
-world:
-
-clean:
+world: all
 
 install-fw: upload upload-fs
 

@@ -1,0 +1,6 @@
+[submodule "ESPAsyncTCP"]
+	path = ESPAsyncTCP
+	url = https://github.com/me-no-dev/ESPAsyncTCP.git
+[submodule "ESPAsyncWebServer"]
+	path = ESPAsyncWebServer
+	url = https://github.com/me-no-dev/ESPAsyncWebServer.git

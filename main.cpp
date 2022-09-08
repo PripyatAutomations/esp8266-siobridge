@@ -1,18 +1,12 @@
 /* TODO: Make this fully async */
 #include "siobridge.h"
 bool spiffsActive = false;
-ESP8266WebServer httpServer(80);
-ESP8266HTTPUpdateServer httpUpdater;
-const char *update_username = ADMIN_USER;
-const char *update_password = ADMIN_PASS;
-
-//#define MAX_SRV_CLIENTS 1
-WiFiServer server(23);
-WiFiClient serverClient;
-
 int RESET_PIN = 0; // = GPIO0 on nodeMCU
-WiFiManager wifiManager;
-Dir root, rnode;
+Dir fs_root, fs_rnode;
+SPIFFSConfig SPIFFScfg;
+ESP8266WiFiMulti wifiMulti;
+extern void telnet_loop(void);
+extern void telnet_setup(void);
 
 void flash_init() {
    uint32_t realSize = ESP.getFlashChipRealSize();
@@ -52,120 +46,34 @@ void main_setup(void) {
    Serial.printf("esp8266-siobridge %s starting\n", VERSION);
    flash_init();
 
+   /* default wifi to station mode */
+   WiFi.mode(WIFI_STA);
+   WiFi.setSleepMode(WIFI_NONE_SLEEP);
+
+   /* Setup filesystem */
+   SPIFFScfg.setAutoFormat(false);
+   SPIFFS.setConfig(SPIFFScfg);
+
    if (SPIFFS.begin()) {
       Serial.println("* FS active!");
       spiffsActive = true;
    } else {
       Serial.println("* FS corrupt!");
    }
+   fs_root = fs_rnode = SPIFFS.openDir("/");
 
-   root = rnode = SPIFFS.openDir("/");
    config_load();
 
-   Serial.println("* Activating WiFi");
-   /* try to connect to saved wifi, if not give AP for config */
-   wifiManager.setConfigPortalTimeout(AP_CONFIG_TIMEOUT);
-   wifiManager.autoConnect(AP_SSID);
+//   Serial.println("* Activating WiFi");
 
-   Serial.println("* Building http root...");
+   telnet_setup();
+   http_setup();
 
-   /*************
-    * Setup www *
-    *************/
-   httpServer.onNotFound([]() {
-      httpServer.send(404, "text/html", "That page couldn't found...<br><a href=\"/\">Click Here</a> to go back<br/>\n");
-   });
-   /* Point / at index.html */
-   httpServer.serveStatic("/", SPIFFS, "/index.html");
-
-   /* add static files */
-   while(rnode.next()) {
-      File file = rnode.openFile("r");
-
-      /* Skip some files that shouldn't be served to users */
-      if (strncasecmp(file.name(), "/config.txt", 11) == 0 ||
-          strncasecmp(file.name(), "/passwd", 6) == 0) {
-#if	defined(DEBUG)
-         Serial.printf("* skip %s (system config)\r\n", file.name());
-#endif
-         continue;
-      }
-
-#if	defined(DEBUG)
-      Serial.printf("* + %s\r\n", file.name());
-#endif
-      httpServer.serveStatic(file.name(), SPIFFS, file.name());
-   }
-
-   /* start the telnet server */
-   server.begin();
-   server.setNoDelay(true);
-
-   /* Enable firmware updater at /firmware */
-   httpUpdater.setup(&httpServer, "/firmware", update_username, update_password);
-   httpServer.on("/status", []() {
-      Serial.println("* Serving status page to http client");
-      httpServer.send(200, "text/html", "Status isn't ready yet...\n");
-   });
-   httpServer.on("/wifi", []() {
-      String content = "Please connect to ";
-             content += AP_SSID;
-             content += " AP and configure then <a href=\"/\">Click Here</a> to open configuration page.\n";
-      Serial.println("*** Switching to AP mode for configuration by admin request ***");
-
-      httpServer.send(200, "text/html", content);
-
-      if (!wifiManager.startConfigPortal(AP_SSID)) {
-         Serial.println("failed to connect and hit timeout");
-         delay(3000);
-         ESP.restart();
-         delay(5000);
-      }
-   });
-   httpServer.begin();
-
-   WiFi.setSleepMode(WIFI_NONE_SLEEP);
-}
-
-
-void AcceptConnection(void) {
-   if (serverClient && serverClient.connected()) 
-      serverClient.stop();
-
-   serverClient = server.available();
-   serverClient.write("esp8266-siobridge ");
-   serverClient.write(VERSION);
-   serverClient.write(" ready!\n");
-}
-
-void ManageConnected(void) {
-   size_t rxlen = serverClient.available();
-
-   if (rxlen > 0) {
-      uint8_t sbuf[rxlen];
-      serverClient.readBytes(sbuf, rxlen);
-      Serial.write(sbuf, rxlen);
-    }
-	
-    size_t txlen = Serial.available();
-
-    if (txlen > 0) {
-       uint8_t sbuf[txlen];
-       Serial.readBytes(sbuf, txlen);
-       serverClient.write(sbuf, txlen);
-    }
 }
 
 void main_loop(void) {
-   /* Accept new pending telnet clients */
-   if (server.hasClient())
-      AcceptConnection();
-   else if (serverClient && serverClient.connected()) {
-      /* XXX: Add multi-user support */
-      /* Handle already connected telnet users */
-      ManageConnected();
-   }
-
-   /* Handle http requests */
-   httpServer.handleClient();
+  if (wifiMulti.run(cfg.wifi_timeout) == WL_CONNECTED) {
+     telnet_loop();
+     http_loop();
+  }
 }

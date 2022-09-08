@@ -1,22 +1,18 @@
-# Repeater's callsign
-callsign=N0CALL
-# modes: auto, ap, cli
-wifi_mode=auto
-# SSID for configuration AP
-ap_ssid=REPEATER ADMIN
-ap_pass=
+# modes: auto, ap, sta
+wifi_mode=sta
+# SSID for configuration AP (no password)
+ap=REPEATER ADMIN+
 # Wait in Configuration AP 300 sec before reboot and try again
 ap_wait=300
 # WiFi client settings
-cli_ssid=WifiNetwork
-cli_pass=password
+connect=WifiNetwork+password
 admin_user=admin
 admin_pass=password
 
 # serial configuration
-# We can support quite a few serial ports, how many are enabled?
-ports=2
 sio0.tx=22
 sio0.rx=21
+sio0.mode=8n1@9600
 sio1.tx=4
 sio1.rx=3
+sio1.mode=8n1@115200

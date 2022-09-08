@@ -6,14 +6,15 @@ bool config_load(void) {
    char buf[128];
    int line = 0;
    bool eof = false;
-   Serial.println("* Loading config.txt");
    File cf = SPIFFS.open("/config.txt", "r"); 
 
    if (!cf) {
-      Serial.print("ERROR Opening config.txt failed");
+      Serial.println("ERROR: config.txt missing");
+      flash_dir();
       return false;
    }
 
+   Serial.println("* Parsing config.txt");
 
    while (!eof) {
       /* read length */
@@ -61,7 +62,8 @@ bool config_load(void) {
         memcpy(pass, (vp + s_len), strlen(vp) - s_len);
         pass[p_len] = '\0';
         /* Add the AP to our list */
-        wifiMulti.addAP(ssid, pass);
+        wifi_add_ap(ssid, pass);
+        /* XXX: Store it somewhere we can save it back to flash later */
       } else if (strncasecmp(buf, "wifi_timeout", 12) == 0) {
         cfg.wifi_timeout = atoll(vp);
       } else if (strncasecmp(buf, "ap_ssid", 7) == 0) {
@@ -166,6 +168,7 @@ bool config_load(void) {
          }
       }
    }
+   Serial.println("* Finished loading configuration");
 }
 
 const char parity_to_str(sio_parity_t p) {

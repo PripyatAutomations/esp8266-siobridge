@@ -1,8 +1,6 @@
 #include "siobridge.h"
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
-const char *update_username = ADMIN_USER;
-const char *update_password = ADMIN_PASS;
 
 void http_setup(void) {
    Serial.println("* Building http root...");
@@ -56,3 +54,7 @@ void http_setup(void) {
 void http_loop(void) {
    httpServer.handleClient();
 }
+
+void http_stop(void) {
+}
+

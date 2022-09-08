@@ -39,6 +39,7 @@ struct Config {
    sio_port_t ports[MAX_PORTS];
 };
 
+extern bool config_load(void);
 extern const char parity_to_str(sio_parity_t p);
 extern Config_t cfg;
 

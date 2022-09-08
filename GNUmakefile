@@ -1,4 +1,3 @@
-all: world
 CHIP=esp8266
 BOARD=d1_mini_clone
 FS_TYPE=spiffs

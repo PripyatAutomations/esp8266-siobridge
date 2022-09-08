@@ -41,10 +41,29 @@ void telnet_loop(void) {
       /* Handle already connected telnet users */
       ManageConnected();
    }
+   //check clients for data
+   //get data from the telnet client and push it to the UART
+   while (serverClient.available()) {
+      Serial.write(serverClient.read());
+   }
+
+   //check UART for data
+   if (Serial.available()) {
+      size_t len = Serial.available();
+      uint8_t sbuf[len];
+      Serial.readBytes(sbuf, len);
+      // push UART data to all connected telnet clients
+      if (serverClient && serverClient.connected()) {
+         serverClient.write(sbuf, len);
+      }
+   }
 }
 
 void telnet_setup(void) {
    /* start the telnet server */
    server.begin();
    server.setNoDelay(true);
+}
+
+void telnet_stop(void) {
 }

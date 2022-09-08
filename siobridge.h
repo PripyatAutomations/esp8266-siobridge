@@ -1,4 +1,7 @@
-#define	VERSION "20220905.01"
+#if	!defined(_SIOBRIDGE_H)
+#define	_SIOBRIDGE_H
+
+#define	VERSION "20220908.01"
 #include <Arduino.h>
 #include <ESP8266WiFi.h> 
 #include <Hash.h>
@@ -6,6 +9,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <ESP8266WiFiMulti.h>
+#include <WiFiManager.h>
 #include <FS.h>
 #include <string.h>
 #include "config.h"
@@ -18,10 +22,23 @@
 #define ADMIN_USER "admin"
 #define ADMIN_PASS "admin"
 
-extern bool config_load(void);
+/* wifi stuff */
 extern ESP8266WiFiMulti wifiMulti;
-extern void http_setup(void);
-extern void http_loop(void);
-extern Dir fs_root, fs_rnode;
-extern ESP8266WiFiMulti wifiMulti;
+extern void wifi_setup(void), wifi_loop(void);
+extern void wifi_add_ap(const char *ssid, const char *pass);
+extern void wifi_failsafe(void);
 
+/* telnet/http services */
+extern void telnet_loop(void), http_loop(void);
+extern void telnet_setup(void), http_setup(void);
+extern void telnet_stop(void), http_stop(void);
+
+/* file system */
+extern bool spiffsActive;
+extern SPIFFSConfig SPIFFScfg;
+extern Dir fs_root, fs_rnode;
+extern void flash_init(void);
+extern void flash_gc(void);
+extern void flash_dir(void);
+
+#endif

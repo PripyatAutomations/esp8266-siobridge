@@ -2,6 +2,8 @@
 wifi_mode=sta
 # SSID for configuration AP (no password)
 ap=REPEATER ADMIN+
+# Time to wait before trying next AP
+wifi_timeout=10
 # Wait in Configuration AP 300 sec before reboot and try again
 ap_wait=300
 # WiFi client settings

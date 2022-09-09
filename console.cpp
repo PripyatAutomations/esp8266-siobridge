@@ -321,14 +321,14 @@ const char *console_prompt(Stream *ch, const char *prompt) {
     return s;
 }
 
-/* Future Use? Allow a mechanism to hide passwords setup menus */
+/* Simple mechanism to avoid showing passwords on the console, if needed */
 const char *redact_password(const char *p) {
    if (cfg.redact_passwords)
       return redacted_pass;
    return p;
 }
 
-/* Here we return a prompt */
+/* display the menu - returns false if errors */
 bool show_menu(Stream *ch, const char *menu) {
    const Menu *mp = NULL;
 

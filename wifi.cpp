@@ -30,16 +30,16 @@ void wifi_loop(void) {
    if (wifiMulti.run(cfg.wifi_timeout) == WL_CONNECTED) {
       telnet_loop();
       http_loop();
-/*
+#if	defined(USE_MDNS)
       MDNS.begin(host);
       MDNS.addService("telnet", "tcp", 23);
       MDNS.addService("http", "tcp", 80);
-*/
+#endif
    } else {
       Serial.printf("Connection status: %d\n", WiFi.status());
-/*
+#if	defined(USE_MDNS)
       MDNS.end();
-*/
+#endif
    }
 }
 
@@ -51,7 +51,23 @@ void wifi_add_ap(const char *ssid, const char *pass) {
 }
 
 /* if we do not have a configuration, try to startup a captive portal for config */
-void wifi_failsafe(void) {
+void wifi_failsafe(int try_config) {
+   bool res = false;
+
    wifiManager.setConfigPortalTimeout(AP_CONFIG_TIMEOUT);
-   wifiManager.autoConnect(AP_SSID);
+   if (try_config) {
+      if (cfg.wifi_ap_ssid != NULL) {
+         res = WiFi.softAP(cfg.wifi_ap_ssid, cfg.wifi_ap_pass);
+      }
+   } else {
+      res = WiFi.softAP(AP_SSID, AP_PASS);
+   }
+
+   if (!res) {
+      Serial.printf("*** Could not start Soft AP, trying last-ditch config without password...\r\n");
+
+      if (!(res = WiFi.softAP(AP_SSID, ""))) {
+         Serial.printf("Nope. Guess we're a brick :(\r\n");
+      }
+   }
 }

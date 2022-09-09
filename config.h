@@ -16,6 +16,7 @@ struct sio_port {
    unsigned int tx_pin, rx_pin;
    unsigned int dtr_pin, cts_pin, rts_pin;
    unsigned int baud_rate;
+   int telnet_port;
    /* 8N1, 7E1, etc */
    sio_parity_t parity;
    unsigned int data_bits;
@@ -25,6 +26,8 @@ struct sio_port {
    bool console;
    /* can use admin commands? */
    bool trusted;
+   /* show *'s instead of passwords in info? */
+   bool redact_passwords;
 };
 
 typedef struct Config Config_t;

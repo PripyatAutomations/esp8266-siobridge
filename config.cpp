@@ -105,6 +105,14 @@ bool config_load(void) {
         strncpy(cfg.admin_user, vp, L_ADMIN_USER);
       } else if (strncasecmp(buf, "admin_pass", 11) == 0) {
         strncpy(cfg.admin_pass, vp, L_ADMIN_PASS);
+      } else if (strncasecmp(buf, "redact_passwords", 16) == 0) {
+        if (strncasecmp(vp, "yes", 3) == 0) {
+          cfg.redact_passwords = true;
+        } else if (strncasecmp(vp, "no", 2) == 0) {
+          cfg.redact_passwords = false;
+        } else {
+          Serial.printf("Invalid value on config.txt:%d\r\n", line);
+        }
       } else if (strncasecmp(buf, "sio", 3) == 0) {
          int port = atoi(buf+4);
          char *dp = strchr(buf, '.');
@@ -125,6 +133,8 @@ bool config_load(void) {
             sp->tx_pin = atoi(vp);
          } else if (tolower((*dp+1)) == 't') { /* or is it a RX pin? */
             sp->rx_pin = atoi(vp);
+         } else if (strncasecmp(dp+1, "telnet", 6) == 0) {
+            sp->telnet_port = atoi(vp);
          } else if (strncasecmp(dp+1, "console", 7) == 0) {
             if (strncasecmp(vp, "yes", 3) == 0) {
               sp->console = true;

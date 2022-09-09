@@ -14,6 +14,7 @@ ap_wait=300
 connect=WifiNetwork+password
 admin_user=admin
 admin_pass=password
+redact_passwords=no
 
 # serial configuration
 sio0.tx=22

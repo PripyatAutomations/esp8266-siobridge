@@ -5,6 +5,9 @@
  */
 #include "siobridge.h"
 
+void relay_setup(void) {
+}
+
 void relay_loop(void) {
 #if	0
     //check clients for data

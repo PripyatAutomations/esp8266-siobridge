@@ -28,12 +28,15 @@ void main_setup(void) {
 
    /* If loading config is successful, start wifi */
    if (config_load() == true) {
+      relay_setup();
       wifi_setup();
    } else { /* Present a fallback AP mode, so maybe user can fix it */
-      wifi_failsafe();
+      wifi_failsafe(false);
    }
 }
 
+/* Here we handle network and serial loops */
 void main_loop(void) {
    wifi_loop();
+   relay_loop();
 }

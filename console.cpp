@@ -5,25 +5,28 @@
 #include "siobridge.h"
 static const char *s_connected = "connected";
 static const char *s_disconnected = "disconencted";
+const char *redacted_pass = "*****";
 
 typedef struct Menu Menu;
 struct Menu {
    const char key;
-//   bool (*func)();
    bool (*func)(Stream *ch, const char *args[]);
    Menu *submenu;
 };
 
 /* Future Use? Allow a mechanism to hide passwords setup menus */
 const char *redact_password(const char *p) {
+   if (cfg.redact_passwords)
+      return redacted_pass;
    return p;
 }
 
+/* XXX: Fix this */
 const char *sio_connected(int port) {
    if (port == 0)
       return s_connected;
-   else
-      return s_disconnected;
+
+   return s_disconnected;
 }
 
 unsigned int sio_baud(int port) {
@@ -108,8 +111,11 @@ static bool cmd_wifi_ap_pass(Stream *ch, const char *args[]) {
 static bool cmd_wifi_ap_ssid(Stream *ch, const char *args[]) {
 }
 
+static bool cmd_wifi_ap_timeout(Stream *ch, const char *args[]) {
+}
+
 static bool cmd_wifi_cli_add_ap(Stream *ch, const char *args[]) {
-//  wifi_add_ap(const char *ssid, const char *pass);
+   wifi_add_ap(args[0], args[1]);
 }
 
 static bool cmd_wifi_cli_del_ap(Stream *ch, const char *args[]) {
@@ -132,8 +138,9 @@ static char *menu_wifi_ap_help[] = {
    "* WiFi AP *\r\n",
    "***********\r\n",
    "\r\n",
-   "S\tSet SSID\r\n",
-   "P\tSet Password\r\n",
+   "S\tSSID\r\n",
+   "P\tPassword\r\n",
+   "T\tTimeout\r\n",
    "\r\n",
    "Q\tBack to Wifi Menu\r\n",
    "X\tBack to Main Menu\r\n",
@@ -143,6 +150,7 @@ static char *menu_wifi_ap_help[] = {
 static Menu menu_wifi_ap[] = {
    { 'P', cmd_wifi_ap_pass, NULL },
    { 'S', cmd_wifi_ap_ssid, NULL },
+   { 'T', cmd_wifi_ap_timeout, NULL },
    { 'Q', NULL, menu_wifi },
    { 'X', NULL, menu_main },
    { 0, NULL, NULL },
@@ -156,7 +164,6 @@ static const char *wifi_cli_help[] = {
    "* WiFi Client *\r\n",
    "***************\r\n",
    "\r\n",
-   "Known APs\r\n",
    "A\tAdd AP\r\n",
    "D\tDelete AP\r\n",
    "L\tList APs (with passwords)\r\n",

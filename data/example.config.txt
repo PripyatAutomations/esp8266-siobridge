@@ -1,5 +1,9 @@
 # modes: auto, ap, sta
 wifi_mode=sta
+# .11 (b/g/n)?
+wifi_type=n
+# spoof MAC?
+#wifi_mac=00:11:22:33:44:55
 # SSID for configuration AP (no password)
 ap=REPEATER ADMIN+
 # Time to wait before trying next AP

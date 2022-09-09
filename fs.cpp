@@ -1,7 +1,13 @@
 #include "siobridge.h"
-bool spiffsActive = false;
+
+bool fs_active = false;
 Dir fs_root, fs_rnode;
-SPIFFSConfig SPIFFScfg;
+#if	defined(USE_SPIFFS)
+SPIFFSConfig FScfg;
+#endif
+#if	defined(USE_LITTLEFS)
+LittleFSConfig FScfg
+#endif
 
 void flash_init() {
    uint32_t realSize = ESP.getFlashChipRealSize();
@@ -15,31 +21,60 @@ void flash_init() {
    Serial.printf("* Flash ide mode:  %s\r\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO  ? "DIO" : ideMode == FM_DOUT ? "DOUT"  : "UNKNOWN"));
 
    if (ideSize != realSize) {
-      Serial.println("* Flash cfg invalid!");
+      Serial.printf("* Flash cfg invalid!\r\n");
    } else {
-      Serial.println("* Flash cfg ok.");
+      Serial.printf("* Flash cfg ok.\r\n");
+   }
+
+   /* Verify flash CRC */
+   if (ESP.checkFlashCRC() == false) {
+      Serial.printf("\r\n");
    }
    /* Setup filesystem */
-   SPIFFScfg.setAutoFormat(false);
-   SPIFFS.setConfig(SPIFFScfg);
+   FScfg.setAutoFormat(false);
+
+#if	defined(USE_SPIFFS)
+   SPIFFS.setConfig(FScfg);
 
    if (SPIFFS.begin()) {
-      Serial.println("* FS active!");
-      spiffsActive = true;
+#endif
+#if	defined(USE_LITTLEFS)
+   LittleFS.setConfig(FScfg);
+
+   if (LittleFS.begin()) {
+#endif
+      Serial.printf("* FS active!\r\n");
+      fs_active = true;
    } else {
-      Serial.println("* FS corrupt, trying to repair!");
+      Serial.printf("* FS corrupt, trying to repair!\r\n");
+#if	defined(USE_SPIFFS)
       SPIFFS.check();
-      
+#endif
+#if	defined(USE_LITTLEFS)
+      LittleFS.check();
+#endif
    }
+#if	defined(USE_SPIFFS)
    fs_root = fs_rnode = SPIFFS.openDir("/");
+#endif
+#if	defined(USE_LITTLEFS)
+   fs_root = fs_rnode = LittleFS.openDir("/");
+#endif
 }
 
 void flash_gc(void) {
+#if	defined(USE_SPIFFS)
    SPIFFS.gc();
+#endif
 }
 
 void flash_dir(void) {
+#if	defined(USE_SPIFFS)
    Dir dir = SPIFFS.openDir("/");
+#endif
+#if	defined(USE_LITTLEFS)
+   Dir dir = LittleFS.openDir("/");
+#endif
    String str = "";
 
    while (dir.next()) {

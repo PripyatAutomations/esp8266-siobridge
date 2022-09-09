@@ -1,3 +1,8 @@
+/*
+ * Our configuration parser...
+ *
+ * This loads /config.txt from the chosen filesystem and parses it into a Config_t
+ */
 #include "siobridge.h"
 
 Config_t cfg;
@@ -6,7 +11,12 @@ bool config_load(void) {
    char buf[128];
    int line = 0;
    bool eof = false;
+#if	defined(USE_SPIFFS)
    File cf = SPIFFS.open("/config.txt", "r"); 
+#endif
+#if	defined(USE_LITTLEFS)
+   File cf = LittleFS.open("/config.txt", "r"); 
+#endif
 
    if (!cf) {
       Serial.println("ERROR: config.txt missing");
@@ -66,6 +76,25 @@ bool config_load(void) {
         /* XXX: Store it somewhere we can save it back to flash later */
       } else if (strncasecmp(buf, "wifi_timeout", 12) == 0) {
         cfg.wifi_timeout = atoll(vp);
+      } else if (strncasecmp(buf, "wifi_mac", 8) == 0) {
+//        strncpy(cfg.wifi_mac, 
+      } else if (strncasecmp(buf, "wifi_power", 10) == 0) {
+        cfg.wifi_power = atof(vp);
+      } else if (strncasecmp(buf, "wifi_type", 9) == 0) {
+        switch(*vp) {
+           case 'B':
+           case 'b':
+             cfg.wifi_type = WIFI_PHY_MODE_11B;
+             break;
+           case 'G':
+           case 'g':
+             cfg.wifi_type = WIFI_PHY_MODE_11G;
+             break;
+           case 'N':
+           case 'n':
+             cfg.wifi_type = WIFI_PHY_MODE_11N;
+           break;
+        }
       } else if (strncasecmp(buf, "ap_ssid", 7) == 0) {
         strncpy(cfg.wifi_ap_ssid, vp, L_WIFI_SSID);
       } else if (strncasecmp(buf, "ap_pass", 7) == 0) {
@@ -88,6 +117,7 @@ bool config_load(void) {
             continue;
          }
 
+         /* sio port selected */
          sp = &cfg.ports[port];
 
          /* This is a TX entry */
@@ -106,10 +136,10 @@ bool config_load(void) {
          } else if (strncasecmp(dp+1, "trusted", 7) == 0) {
             if (strncasecmp(vp, "yes", 3) == 0) {
               sp->trusted = true;
-            } else if (strncasecmp(vp, "no", 2) == 0) {
+             } else if (strncasecmp(vp, "no", 2) == 0) {
               sp->trusted = false;
             } else {
-              Serial.printf("invalid value %s in config.txt:%d\n", vp, line);
+             Serial.printf("invalid value %s in config.txt:%d\n", vp, line);
             }
          } else if (strncasecmp(dp+1, "mode", 4) == 0) {
            // Ahh it's the mode...
@@ -178,4 +208,25 @@ const char parity_to_str(sio_parity_t p) {
       return 'E';
    else if (p == PARITY_ODD)
       return 'O';
+}
+
+/* XXX: Write this */
+bool config_dump(const char *name) {
+#if	defined(USE_SPIFFS)
+#endif
+#if	defined(USE_LITTLEFS)
+#endif
+
+   /* wifi mode */
+   switch(cfg.wifi_mode) {
+      case WIFI_AP:
+         break;
+      case WIFI_STA:
+         break;
+      case WIFI_AP_STA:
+         break;
+      default:
+         break;
+   }
+   return true;
 }

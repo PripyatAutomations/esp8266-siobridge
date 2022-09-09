@@ -2,7 +2,7 @@
 #define	_SIOBRIDGE_CONFIG_H
 
 /* This should be setup so that RX-only and TX-only ports can happen */
-#define	MAX_PORTS	12
+#define	MAX_PORTS	16
 #define	L_ADMIN_USER	24
 #define	L_ADMIN_PASS	32
 #define	L_WIFI_SSID	32
@@ -30,8 +30,10 @@ struct sio_port {
 typedef struct Config Config_t;
 struct Config {
    WiFiMode wifi_mode;
+   WiFiPhyMode_t wifi_type;
    char wifi_ap_ssid[L_WIFI_SSID];
    char wifi_ap_pass[L_WIFI_PASS];
+   float wifi_power;			/* wifi power in dBm */
    time_t wifi_timeout;
    int  wifi_ap_wait;
    char admin_user[L_ADMIN_USER];

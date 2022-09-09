@@ -14,7 +14,11 @@
 #include <string.h>
 #include "config.h"
 
-#define	SIO_DEBUG
+#define	SIO_DEBUG	1
+
+/* Use either SPIFFS or LittleFS, not both! */
+#define	USE_SPIFFS
+//#define USE_LITTLEFS
 
 /* Wait up to 300 seconds (5 minutes) in the WiFi config (AP) mode before restarting */
 #define AP_CONFIG_TIMEOUT 300

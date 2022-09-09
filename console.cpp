@@ -3,15 +3,21 @@
  *
  */
 #include "siobridge.h"
-const char *s_connected = "connected";
-const char *s_disconnected = "disconencted";
+static const char *s_connected = "connected";
+static const char *s_disconnected = "disconencted";
 
 typedef struct Menu Menu;
 struct Menu {
    const char key;
-   bool (*func)();
+//   bool (*func)();
+   bool (*func)(Stream *ch, const char *args[]);
    Menu *submenu;
 };
+
+/* Future Use? Allow a mechanism to hide passwords setup menus */
+const char *redact_password(const char *p) {
+   return p;
+}
 
 const char *sio_connected(int port) {
    if (port == 0)
@@ -21,7 +27,7 @@ const char *sio_connected(int port) {
 }
 
 unsigned int sio_baud(int port) {
-   return 115200;
+   return  cfg.ports[port].baud_rate;
 }
 
 unsigned int sio_unread_buffers(int port) {
@@ -29,127 +35,253 @@ unsigned int sio_unread_buffers(int port) {
 }
 
 const char *sio_bits(int port) {
+   /* yuck... this is going to be big... */
    return "8N1";
 }
 
-bool cmd_connect(void) {
+///////////////////////////////////////////
+/* Internal bits below here, Not exposed */
+///////////////////////////////////////////
+static bool cmd_connect(Stream *ch, const char *args[]) {
 }
 
 /*
  * cmd_info: System information display
  */
-bool cmd_info(void) {
-   Serial.println("**************************");
-   Serial.println("* esp8266-siobridge info *");
-   Serial.println("**************************");
-   Serial.println("");
-   Serial.println("Serial Ports:");
-   Serial.printf("\tsio0: %s <%s@%d>\n", sio_connected(0), sio_unread_buffers(0), sio_baud(0));
-   Serial.printf("\tsio1: %s <%s@%d>\n", sio_connected(1), sio_unread_buffers(1), sio_baud(1));
-   Serial.printf("\tsio2: %s <%s@%d>\n", sio_connected(2), sio_unread_buffers(2), sio_baud(2));
-   Serial.printf("\tsio3: %s <%s@%d>\n", sio_connected(3), sio_unread_buffers(3), sio_baud(3));
-   Serial.printf("\tsio4: %s <%s@%d>\n", sio_connected(4), sio_unread_buffers(4), sio_baud(4));
-   Serial.printf("\tsio5: %s <%s@%d>\n", sio_connected(5), sio_unread_buffers(5), sio_baud(5));
-   Serial.println("");
-}
-
-bool cmd_main_help(void) {
-   Serial.println("**********************************");
-   Serial.println("* esp8266-siobridge console help *");
-   Serial.println("**********************************");
-   Serial.println("");
-   Serial.printf(" C <#>\tConnect to port <#>\n");
-   Serial.printf(" I    \tInformation screen\n");
-   Serial.printf(" S    \tSetup Menu\n");
+static bool cmd_info(Stream *ch, const char *args[]) {
+   ch->printf("**************************\r\n");
+   ch->printf("* esp8266-siobridge info *\r\n");
+   ch->printf("**************************\r\n");
+   ch->printf("\r\n");
+   ch->printf("Serial Ports:\r\n");
+   ch->printf("\tsio0: %s <%s@%d>\n", sio_connected(0), sio_unread_buffers(0), sio_baud(0));
+   ch->printf("\tsio1: %s <%s@%d>\n", sio_connected(1), sio_unread_buffers(1), sio_baud(1));
+   ch->printf("\tsio2: %s <%s@%d>\n", sio_connected(2), sio_unread_buffers(2), sio_baud(2));
+   ch->printf("\tsio3: %s <%s@%d>\n", sio_connected(3), sio_unread_buffers(3), sio_baud(3));
+   ch->printf("\tsio4: %s <%s@%d>\n", sio_connected(4), sio_unread_buffers(4), sio_baud(4));
+   ch->printf("\tsio5: %s <%s@%d>\n", sio_connected(5), sio_unread_buffers(5), sio_baud(5));
+   ch->printf("\r\n");
+   ch->printf("WiFi Setup:\r\n");
+   ch->printf("\tAP - SSID: \"%s\" PASS: \"%s\"\r\n", cfg.wifi_ap_ssid, redact_password(cfg.wifi_ap_pass));
+   /* XXX: print client networks */
 }
 
 
-bool cmd_restart(void) {
-   Serial.println("* Restarting!");
+static bool cmd_restart(Stream *ch, const char *args[]) {
+   ch->println("* Restarting!");
+   ESP.restart();
 }
 
-bool cmd_wifi_dhcp(void) { }
-bool cmd_wifi_dns(void) { }
-bool cmd_wifi_ip(void) { }
-bool cmd_wifi_gateway(void) { }
-bool cmd_wifi_netmask(void) { }
-bool cmd_wifi_ntp(void) { }
-bool cmd_wifi_pass(void) { }
-bool cmd_wifi_ssid(void) { }
-bool cmd_wifi_syslog(void) { }
-
-bool cmd_wifi(void) {
-   Serial.println("********");
-   Serial.println("* WiFi *");
-   Serial.println("********");
-   Serial.println("");
-   Serial.println("S\tSSID");
-   Serial.println("P\tPassword");
-   Serial.println("");
-   Serial.println("* IP Config *");
-   Serial.println("D\tUse DHCP");
-   Serial.println("");
-   Serial.println("I\tIP address");
-   Serial.println("M\tNetmask");
-   Serial.println("G\tGateway");
-   Serial.println("");
-   Serial.println("* Service Hosts *");
-   Serial.println("T\tTime (NTP) servers");
-   Serial.println("L\tLog servers");
-   Serial.println("N\tDNS servers");   
+static bool cmd_wifi_dhcp(Stream *ch, const char *args[]) {
 }
 
-bool cmd_setup_help(void) {
-   Serial.println("***************************");
-   Serial.println("* esp8266-siobridge setup *");
-   Serial.println("***************************");
-   Serial.println("");
-   Serial.println("* serial ports *");
-   Serial.println("0\tsio0 setup");
-   Serial.println("1\tsio1 setup");
-   Serial.println("2\tsio2 setup");
-   Serial.println("3\tsio3 setup");
-   Serial.println("4\tsio4 setup");
-   Serial.println("5\tsio5 setup");
-   Serial.println("");
-   Serial.println("W\tWiFi setup");
-   Serial.println("");
-   Serial.println("* admin tasks *");
-   Serial.println("R\tRestart bridge");
-   Serial.println("X\tLeave setup menu");
+static bool cmd_wifi_dns(Stream *ch, const char *args[]) {
 }
 
-extern Menu menu_main[], menu_setup[], menu_wifi[];
+static bool cmd_wifi_ip(Stream *ch, const char *args[]) {
+}
 
-Menu menu_main[] = {
-   { 'C', cmd_connect, NULL },
-   { 'I', cmd_info, NULL },
-   { 'S', cmd_setup_help, NULL },
-   { 0, NULL, NULL }
+static bool cmd_wifi_gateway(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_netmask(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_ntp(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_ap(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_cli(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_client(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_syslog(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_ap_pass(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_ap_ssid(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_cli_add_ap(Stream *ch, const char *args[]) {
+//  wifi_add_ap(const char *ssid, const char *pass);
+}
+
+static bool cmd_wifi_cli_del_ap(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_wifi_cli_list_aps(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_logout(Stream *ch, const char *args[]) {
+}
+
+//////////////////////////////
+// Menu Structure and Helps //
+//////////////////////////////
+extern Menu menu_main[], menu_wifi[];
+
+//////////////////////////////
+static char *menu_wifi_ap_help[] = {
+   "***********\r\n",
+   "* WiFi AP *\r\n",
+   "***********\r\n",
+   "\r\n",
+   "S\tSet SSID\r\n",
+   "P\tSet Password\r\n",
+   "\r\n",
+   "Q\tBack to Wifi Menu\r\n",
+   "X\tBack to Main Menu\r\n",
+   NULL
 };
 
-Menu menu_setup[] = {
-   { '0', cmd_connect, NULL },
-   { '1', cmd_connect, NULL },
-   { '2', cmd_connect, NULL },
-   { '3', cmd_connect, NULL },
-   { '4', cmd_connect, NULL },
-   { '5', cmd_connect, NULL },
-   { 'R', cmd_restart, NULL },
-   { 'W', NULL, menu_wifi },
-   { 'X', NULL, menu_main }
+static Menu menu_wifi_ap[] = {
+   { 'P', cmd_wifi_ap_pass, NULL },
+   { 'S', cmd_wifi_ap_ssid, NULL },
+   { 'Q', NULL, menu_wifi },
+   { 'X', NULL, menu_main },
+   { 0, NULL, NULL },
+};
+
+
+
+//////////////////////////////
+static const char *wifi_cli_help[] = {
+   "***************\r\n"
+   "* WiFi Client *\r\n",
+   "***************\r\n",
+   "\r\n",
+   "Known APs\r\n",
+   "A\tAdd AP\r\n",
+   "D\tDelete AP\r\n",
+   "L\tList APs (with passwords)\r\n",
+   "\r\n",
+   "Q\tBack to Wifi Menu\r\n",
+   "X\tBack to Main Menu\r\n",
+   NULL
+};
+
+static Menu menu_wifi_cli[] = {
+   { 'A', cmd_wifi_cli_add_ap, NULL },
+   { 'D', cmd_wifi_cli_del_ap, NULL },
+   { 'L', cmd_wifi_cli_list_aps, NULL },
+   { 'Q', NULL, menu_wifi },
+   { 'X', NULL, menu_main },
+   { 0, NULL, NULL },
+};
+
+//////////////////////////////
+static const char *menu_wifi_help[] = {
+   "********\r\n",
+   "* WiFi *\r\n",
+   "********\r\n",
+   "\r\n",
+   "A\tAccess Point Mode\r\n",
+   "C\tClient Mode\r\n",
+   "\r\n",
+   "* IP Config *\r\n",
+   "D\tUse DHCP\r\n",
+   "\r\n",
+   "I\tIP address\r\n",
+   "M\tNetmask\r\n",
+   "G\tGateway\r\n",
+   "\r\n",
+   "* Service Hosts *\r\n",
+   "T\tTime (NTP) servers\r\n",
+   "L\tLog servers\r\n",
+   "N\tDNS servers\r\n",
+   NULL
 };
 
 Menu menu_wifi[] = {
+   { 'A', cmd_wifi_ap, menu_wifi_ap, },
+   { 'C', cmd_wifi_cli, menu_wifi_cli },
    { 'D', cmd_wifi_dhcp, NULL },
    { 'I', cmd_wifi_ip, NULL },
    { 'G', cmd_wifi_gateway, NULL },
    { 'L', cmd_wifi_syslog, NULL },
    { 'M', cmd_wifi_netmask, NULL },
    { 'N', cmd_wifi_dns, NULL },
-   { 'P', cmd_wifi_pass, NULL },
-   { 'S', cmd_wifi_ssid, NULL },
    { 'T', cmd_wifi_ntp, NULL },
    { 'X', NULL, menu_main },
    { 0, NULL, NULL },
 };
+
+//////////////////////////////
+static const char *menu_setup_help[] = {
+   "***************************\r\n",
+   "* esp8266-siobridge setup *\r\n",
+   "***************************\r\n",
+   "\r\n",
+   "* serial ports *\r\n",
+   "0-F\tsio<#> setup (1-16)\r\n",
+   "\r\n",
+   "W\tWiFi setup\r\n",
+   "\r\n",
+   "* admin tasks *\r\n",
+   "R\tRestart bridge\r\n",
+   "X\tLeave setup menu\r\n",
+   NULL
+};
+
+static Menu menu_setup[] = {
+   { '0', cmd_connect, NULL },
+   { '1', cmd_connect, NULL },
+   { '2', cmd_connect, NULL },
+   { '3', cmd_connect, NULL },
+   { '4', cmd_connect, NULL },
+   { '5', cmd_connect, NULL },
+   { '6', cmd_connect, NULL },
+   { '7', cmd_connect, NULL },
+   { '8', cmd_connect, NULL },
+   { '9', cmd_connect, NULL },
+   { 'A', cmd_connect, NULL },
+   { 'B', cmd_connect, NULL },
+   { 'C', cmd_connect, NULL },
+   { 'D', cmd_connect, NULL },
+   { 'E', cmd_connect, NULL },
+   { 'F', cmd_connect, NULL },
+   { 'R', cmd_restart, NULL },
+   { 'W', NULL, menu_wifi },
+   { 'X', NULL, menu_main },
+   { 0, NULL, NULL },
+};
+
+
+//////////////////////////////
+static const char *menu_main_help[] = {
+   "**********************************\r\n",
+   "* esp8266-siobridge console help *\r\n",
+   "**********************************\r\n\r\n",
+   " C <#>\tConnect to port <#>\r\n",
+   " I    \tInformation screen\r\n",
+   " S    \tSetup Menu\r\n",
+   NULL
+};
+
+Menu menu_main[] = {
+   { 'C', cmd_connect, NULL },
+   { 'I', cmd_info, NULL },
+   { 'S', NULL, menu_setup },
+   { 'X', cmd_logout, NULL },
+   { 0, NULL, NULL }
+};
+
+void menu_print(Stream *ch, const char *menu[]) {
+   if (menu == NULL) {
+      ch->printf("menu_print: NULL menu passed\r\n");
+      return;
+   }
+
+   for (int i = 0; i < (sizeof(menu) / sizeof(menu[0])); i++) {
+      if (menu[i] == NULL)
+         return;
+
+      ch->printf(menu[i]);
+   }
+}

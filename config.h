@@ -26,22 +26,37 @@ struct sio_port {
    bool console;
    /* can use admin commands? */
    bool trusted;
-   /* show *'s instead of passwords in info? */
-   bool redact_passwords;
 };
 
 typedef struct Config Config_t;
 struct Config {
    WiFiMode wifi_mode;
    WiFiPhyMode_t wifi_type;
-   char wifi_ap_ssid[L_WIFI_SSID];
-   char wifi_ap_pass[L_WIFI_PASS];
    float wifi_power;			/* wifi power in dBm */
    time_t wifi_timeout;
-   int  wifi_ap_wait;
    char admin_user[L_ADMIN_USER];
    char admin_pass[L_ADMIN_PASS];
    sio_port_t ports[MAX_PORTS];
+   /* show *'s instead of passwords in info? */
+   bool redact_passwords;
+
+   /* http */
+   int http_port;
+
+   /* WiFi Client mode */
+   IPAddress wifi_cli_ip,
+             wifi_cli_gw,
+             wifi_cli_net;
+
+   /* WiFi Access Point mode */
+   bool wifi_ap_hidden;
+   char wifi_ap_ssid[L_WIFI_SSID];
+   char wifi_ap_pass[L_WIFI_PASS];
+   int wifi_ap_wait;
+   int wifi_ap_chan;
+   IPAddress wifi_ap_ip,
+             wifi_ap_gw,
+             wifi_ap_net;
 };
 
 extern bool config_load(void);

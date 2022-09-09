@@ -60,10 +60,10 @@ void telnet_loop(void) {
 }
 
 void telnet_setup(void) {
-   /* start the telnet server */
    server.begin();
    server.setNoDelay(true);
 }
 
 void telnet_stop(void) {
+   server.stop();
 }

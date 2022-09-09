@@ -6,6 +6,9 @@
 #include "siobridge.h"
 int RESET_PIN = 0; // = GPIO0 on nodeMCU
 
+/* Should we reboot next loop? (For OTA */
+bool need_reboot = false;
+
 void main_setup(void) {
    /* enable reset pin */
    pinMode(RESET_PIN, INPUT_PULLUP);
@@ -31,12 +34,19 @@ void main_setup(void) {
       relay_setup();
       wifi_setup();
    } else { /* Present a fallback AP mode, so maybe user can fix it */
+      wifi_stop();
       wifi_failsafe(false);
    }
 }
 
 /* Here we handle network and serial loops */
 void main_loop(void) {
+   if (need_reboot) {
+      Serial.printf("* need_reboot = true! restarting...\r\n");
+      delay(500);
+      ESP.restart();
+   }
+
    wifi_loop();
    relay_loop();
 }

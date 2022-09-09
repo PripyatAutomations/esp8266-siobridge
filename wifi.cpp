@@ -1,5 +1,4 @@
 #include "siobridge.h"
-WiFiManager wifiManager;
 ESP8266WiFiMulti wifiMulti;
 
 WiFiEventHandler wifi_disconnected = WiFi.onStationModeDisconnected([]( const WiFiEventStationModeDisconnected& event) {
@@ -54,13 +53,12 @@ void wifi_add_ap(const char *ssid, const char *pass) {
 void wifi_failsafe(int try_config) {
    bool res = false;
 
-   wifiManager.setConfigPortalTimeout(AP_CONFIG_TIMEOUT);
    if (try_config) {
       if (cfg.wifi_ap_ssid != NULL) {
-         res = WiFi.softAP(cfg.wifi_ap_ssid, cfg.wifi_ap_pass);
+         res = WiFi.softAP(cfg.wifi_ap_ssid, (cfg.wifi_ap_pass != NULL ? cfg.wifi_ap_pass : ""), cfg.wifi_ap_chan, cfg.wifi_ap_hidden, 8);
       }
    } else {
-      res = WiFi.softAP(AP_SSID, AP_PASS);
+      res = WiFi.softAP(AP_SSID, AP_PASS, AP_CHAN, AP_HIDDEN, 8);
    }
 
    if (!res) {
@@ -70,4 +68,9 @@ void wifi_failsafe(int try_config) {
          Serial.printf("Nope. Guess we're a brick :(\r\n");
       }
    }
+}
+
+void wifi_stop(void) {
+   http_stop();
+   telnet_stop();
 }

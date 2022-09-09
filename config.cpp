@@ -53,6 +53,8 @@ bool config_load(void) {
            cfg.wifi_mode = WIFI_AP_STA;
         } else
            Serial.printf("malformed line: config.txt:%d", line);
+      } else if (strncasecmp(buf, "http_port", 9) == 0) {
+        cfg.http_port = atoi(vp);
       } else if (strncasecmp(buf, "connect", 7) == 0) {
         char ssid[L_WIFI_SSID+1];
         char pass[L_WIFI_PASS+1];
@@ -99,6 +101,16 @@ bool config_load(void) {
         strncpy(cfg.wifi_ap_ssid, vp, L_WIFI_SSID);
       } else if (strncasecmp(buf, "ap_pass", 7) == 0) {
         strncpy(cfg.wifi_ap_pass, vp, L_WIFI_PASS);
+      } else if (strncasecmp(buf, "ap_chan", 7) == 0) {
+        cfg.wifi_ap_chan = atoi(vp);
+      } else if (strncasecmp(buf, "ap_hidden", 9) == 0) {
+        if (strncasecmp(vp, "yes", 3) == 0) {
+          cfg.wifi_ap_hidden = true;
+        } else if (strncasecmp(vp, "no", 2) == 0) {
+          cfg.wifi_ap_hidden = false;
+        } else {
+          Serial.printf("Invalid value on config.txt:%d\r\n", line);
+        }
       } else if (strncasecmp(buf, "ap_wait", 7) == 0) {
         cfg.wifi_ap_wait = atoi(vp);
       } else if (strncasecmp(buf, "admin_user", 11) == 0) {

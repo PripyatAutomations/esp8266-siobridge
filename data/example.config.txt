@@ -4,14 +4,11 @@ wifi_mode=sta
 wifi_type=n
 # spoof MAC?
 #wifi_mac=00:11:22:33:44:55
-# SSID for configuration AP (no password)
 ap=REPEATER ADMIN+
 # Time to wait before trying next AP
 wifi_timeout=10
 # Wait in Configuration AP 300 sec before reboot and try again
 ap_wait=300
-# WiFi client settings
-connect=WifiNetwork+password
 admin_user=admin
 admin_pass=password
 redact_passwords=no
@@ -23,3 +20,15 @@ sio0.mode=8n1@9600
 sio1.tx=4
 sio1.rx=3
 sio1.mode=8n1@115200
+
+[ap]
+enabled=yes
+ssid=WifiNetwork
+pass=
+dhcp=no
+ip=10.2.3.4
+gw=10.2.3.1
+netmask=255.255.255.0
+dns=1.1.1.1,4.2.2.2,8.8.8.8
+ntp=pool.ntp.org
+syslog=10.11.0.3

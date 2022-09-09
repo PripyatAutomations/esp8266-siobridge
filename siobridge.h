@@ -14,6 +14,7 @@
 #include <Hash.h>
 #include <functional>
 #include "config.h"
+#include "users.h"
 
 #define	SIO_DEBUG	1
 
@@ -63,6 +64,6 @@ extern void flash_dir(void);
 /* console */
 extern const char *console_prompt(Stream *ch, const char *prompt);
 extern const char *redact_password(const char *p);
-extern const char *show_menu(Stream *ch, const char *menu);
+extern bool show_menu(Stream *ch, const char *menu);
 
 #endif

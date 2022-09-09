@@ -7,23 +7,8 @@ static const char *s_connected = "connected";
 static const char *s_disconnected = "disconencted";
 const char *redacted_pass = "*****";
 
-typedef struct Menu Menu;
-struct Menu {
-   const char key;
-   bool (*func)(Stream *ch, const char *args[]);
-   Menu *submenu;
-};
-
-/* Future Use? Allow a mechanism to hide passwords setup menus */
-const char *redact_password(const char *p) {
-   if (cfg.redact_passwords)
-      return redacted_pass;
-   return p;
-}
-
-/* XXX: Fix this */
 const char *sio_connected(int port) {
-   if (port == 0)
+   if (cfg.ports[port].refcnt > 0)
       return s_connected;
 
    return s_disconnected;
@@ -34,7 +19,7 @@ unsigned int sio_baud(int port) {
 }
 
 unsigned int sio_unread_buffers(int port) {
-   return 0;
+   return cfg.ports[port].unread_buffers;
 }
 
 const char *sio_bits(int port) {
@@ -57,6 +42,7 @@ static bool cmd_info(Stream *ch, const char *args[]) {
    ch->printf("**************************\r\n");
    ch->printf("\r\n");
    ch->printf("Serial Ports:\r\n");
+/* XXX: Make this just loop over the sio_ports array */
    ch->printf("\tsio0: %s <%s@%d>\n", sio_connected(0), sio_unread_buffers(0), sio_baud(0));
    ch->printf("\tsio1: %s <%s@%d>\n", sio_connected(1), sio_unread_buffers(1), sio_baud(1));
    ch->printf("\tsio2: %s <%s@%d>\n", sio_connected(2), sio_unread_buffers(2), sio_baud(2));
@@ -130,10 +116,25 @@ static bool cmd_logout(Stream *ch, const char *args[]) {
 //////////////////////////////
 // Menu Structure and Helps //
 //////////////////////////////
-extern Menu menu_main[], menu_wifi[];
+typedef struct MenuItem MenuItem;
+struct MenuItem {
+   const char key;
+   bool (*func)(Stream *ch, const char *args[]);
+   const MenuItem *submenu;
+};
+
+typedef struct Menu Menu;
+struct Menu {
+   char name[16];
+   const MenuItem *menu;
+   char *help[];
+};
+
+
+extern const MenuItem menu_main[], menu_wifi[];
 
 //////////////////////////////
-static char *menu_wifi_ap_help[] = {
+static const char *menu_wifi_ap_help[] = {
    "***********\r\n",
    "* WiFi AP *\r\n",
    "***********\r\n",
@@ -147,7 +148,7 @@ static char *menu_wifi_ap_help[] = {
    NULL
 };
 
-static Menu menu_wifi_ap[] = {
+static const MenuItem menu_wifi_ap[] = {
    { 'P', cmd_wifi_ap_pass, NULL },
    { 'S', cmd_wifi_ap_ssid, NULL },
    { 'T', cmd_wifi_ap_timeout, NULL },
@@ -159,7 +160,7 @@ static Menu menu_wifi_ap[] = {
 
 
 //////////////////////////////
-static const char *wifi_cli_help[] = {
+static const char *menu_wifi_cli_help[] = {
    "***************\r\n"
    "* WiFi Client *\r\n",
    "***************\r\n",
@@ -173,7 +174,7 @@ static const char *wifi_cli_help[] = {
    NULL
 };
 
-static Menu menu_wifi_cli[] = {
+static const MenuItem menu_wifi_cli[] = {
    { 'A', cmd_wifi_cli_add_ap, NULL },
    { 'D', cmd_wifi_cli_del_ap, NULL },
    { 'L', cmd_wifi_cli_list_aps, NULL },
@@ -205,7 +206,7 @@ static const char *menu_wifi_help[] = {
    NULL
 };
 
-Menu menu_wifi[] = {
+const MenuItem menu_wifi[] = {
    { 'A', cmd_wifi_ap, menu_wifi_ap, },
    { 'C', cmd_wifi_cli, menu_wifi_cli },
    { 'D', cmd_wifi_dhcp, NULL },
@@ -236,7 +237,7 @@ static const char *menu_setup_help[] = {
    NULL
 };
 
-static Menu menu_setup[] = {
+static const MenuItem menu_setup[] = {
    { '0', cmd_connect, NULL },
    { '1', cmd_connect, NULL },
    { '2', cmd_connect, NULL },
@@ -271,7 +272,7 @@ static const char *menu_main_help[] = {
    NULL
 };
 
-Menu menu_main[] = {
+const MenuItem menu_main[] = {
    { 'C', cmd_connect, NULL },
    { 'I', cmd_info, NULL },
    { 'S', NULL, menu_setup },
@@ -279,6 +280,16 @@ Menu menu_main[] = {
    { 0, NULL, NULL }
 };
 
+const Menu menus[6] = {
+  { "main",  menu_main, menu_main_help },
+  { "setup", menu_setup, menu_setup_help },
+  { "wifi", menu_wifi, menu_wifi_help },
+  { "wifi_ap", menu_wifi_ap, menu_wifi_ap_help },
+  { "wifi_cli", menu_wifi_cli, menu_wifi_cli_help },
+  { NULL, NULL, NULL }
+};
+
+///////////////////
 void menu_print(Stream *ch, const char *menu[]) {
    if (menu == NULL) {
       ch->printf("menu_print: NULL menu passed\r\n");
@@ -291,4 +302,52 @@ void menu_print(Stream *ch, const char *menu[]) {
 
       ch->printf(menu[i]);
    }
+}
+
+/* Print a prompt and read the user input then return it */
+const char *console_prompt(Stream *ch, const char *prompt) {
+    char s[256];
+    size_t rb = 0;
+    memset(s, 0, 256);
+
+    ch->printf("%s> ", prompt);
+    rb = ch->readBytesUntil('\n', s, 255);
+
+    if (rb <= 0)
+       ch->printf("%s> ", prompt);
+
+    ch->printf("\r\n");
+
+    return s;
+}
+
+/* Future Use? Allow a mechanism to hide passwords setup menus */
+const char *redact_password(const char *p) {
+   if (cfg.redact_passwords)
+      return redacted_pass;
+   return p;
+}
+
+/* Here we return a prompt */
+bool show_menu(Stream *ch, const char *menu) {
+   const Menu *mp = NULL;
+
+   for (int i = 0; menus[i].name != NULL; i++) {
+       if (strcasecmp(menu, menus[i].name) == 0) {
+          mp = &menus[i];
+          break;
+       }
+   }
+   
+   if (!mp) {
+      Serial.printf("show_menu(%s) failed.\r\n", menu);
+      return false;
+   }
+
+   int i = 0;
+   while (mp->help[i] != NULL) {
+      Serial.printf("%s\r\n", mp->help[i]);
+      i++;
+   }
+   return true;
 }

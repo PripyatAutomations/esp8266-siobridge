@@ -3,6 +3,7 @@
 
 /* This should be setup so that RX-only and TX-only ports can happen */
 #define	MAX_PORTS	16
+#define	MAX_USERS	10
 #define	L_ADMIN_USER	24
 #define	L_ADMIN_PASS	32
 #define	L_WIFI_SSID	32
@@ -15,13 +16,16 @@ typedef struct sio_port sio_port_t;
 struct sio_port {
    unsigned int tx_pin, rx_pin;
    unsigned int dtr_pin, cts_pin, rts_pin;
-   unsigned int baud_rate;
    int telnet_port;
+   int refcnt;			/* connected users */
+   int unread_buffers;		/* saved data waiting to be read? */
+
    /* 8N1, 7E1, etc */
+   unsigned int baud_rate;
    sio_parity_t parity;
    unsigned int data_bits;
    unsigned int stop_bits;
-   /* controls */
+
    /* can use console? */
    bool console;
    /* can use admin commands? */

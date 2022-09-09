@@ -308,10 +308,10 @@ void menu_print(Stream *ch, const char *menu[]) {
 const char *console_prompt(Stream *ch, const char *prompt) {
     char s[256];
     size_t rb = 0;
-    memset(s, 0, 256);
 
     ch->printf("%s> ", prompt);
     rb = ch->readBytesUntil('\n', s, 255);
+    s[rb] = '\0';
 
     if (rb <= 0)
        ch->printf("%s> ", prompt);

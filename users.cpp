@@ -5,8 +5,8 @@
 
 user_t users[MAX_USERS];
 
-user_t user_add(const char *user, const char *pass) {
-    user_t *p = malloc(sizeof(user_t));
+user_t *user_add(const char *user, const char *pass) {
+    user_t *p = (user_t *)malloc(sizeof(user_t));
 
     if (user == NULL || pass == NULL)
        return NULL;
@@ -26,7 +26,7 @@ user_t user_add(const char *user, const char *pass) {
 user_t *user_find(const char *user) {
     for (int i = 0; i < MAX_USERS; i++) {
        if (strcasecmp(users[i].user, user) == 0) {
-          return users[i];
+          return &users[i];
        }
     }
     return NULL;

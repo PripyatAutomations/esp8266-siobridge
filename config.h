@@ -19,9 +19,10 @@
 #define ADMIN_PASS "admin"
 
 /* This should be setup so that RX-only and TX-only ports can happen */
-#define	MAX_PORTS	16
-#define	MAX_USERS	10
-#define	MAX_APS		4
+#define	MAX_PORTS	16		/* maximum configured ports */
+#define	MAX_USERS	5		/* maximum configured users */
+#define	MAX_APS		4		/* maximum APs for WiFiMulti */
+#define	MAX_SESSIONS	5		/* maximum concurrent sessions */
 #define	L_ADMIN_USER	24
 #define	L_ADMIN_PASS	32
 #define	L_WIFI_SSID	32
@@ -32,6 +33,7 @@ typedef enum sio_parity sio_parity_t;
 
 typedef struct sio_port sio_port_t;
 struct sio_port {
+   bool configured, enabled;
    unsigned int tx_pin, rx_pin;
    unsigned int dtr_pin, cts_pin, rts_pin;
    int telnet_port;

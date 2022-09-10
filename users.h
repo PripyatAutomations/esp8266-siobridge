@@ -8,6 +8,7 @@ struct user {
    bool readonly;
    char user[16];
    char pass[32];
+   int refcnt;		/* how many active logins for this user? */
 };
 
 extern user_t users[MAX_USERS];

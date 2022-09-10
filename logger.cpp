@@ -3,8 +3,10 @@
  *	Targets: syslog console flash
  */
 #include "siobridge.h"
+#include <EspSyslog/Syslog.h>
 #include <stdarg.h>
 
+WiFiUDP udp;
 Syslog *logger = NULL;
 
 void syslog_setup(void) {

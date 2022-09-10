@@ -101,6 +101,8 @@ bool config_load(void) {
          }
       }
       vp = strchr(bp, '=') + 1;
+      /* Terminate the base string */
+      *(vp - 2) = '\0';
 
       if (strncasecmp(section, "general", 7) == 0) {
          if (strncasecmp(buf, "wifi_mode", 9) == 0) {
@@ -300,6 +302,8 @@ bool config_load(void) {
          } else if (strncasecmp(buf, "dns", 3) == 0) {
          } else if (strncasecmp(buf, "ntp", 3) == 0) {
          }
+      } else if (strncasecmp(section, "users", 5) == 0) {
+         user_add(bp, vp);
       } else {
          Serial.printf("\r\n Invalid configuration section %s in config.txt:5d\r\n", section, line);
       }

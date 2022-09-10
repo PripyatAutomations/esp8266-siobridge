@@ -1,0 +1,5 @@
+* Connect Stream based transports (serial, i2c, 1wire, spi, etc) as virtual serial ports
+* Provide telnet and telnet-over-websocket setup and port access
+* Multi-user
+* NO encryption (we haven't the resources to spare)
+* Planned support for Bridge2Bridge (b2b) mode

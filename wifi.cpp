@@ -1,6 +1,30 @@
 #include "siobridge.h"
 ESP8266WiFiMulti wifiMulti;
 
+const byte DNS_PORT = 53;
+IPAddress ap_ip(192, 168, 4, 1);
+IPAddress ap_netmask(255, 255, 255, 0);
+
+DNSServer dnsServer;
+
+void dns_setup(void) {
+   /* Setup the DNS server redirecting all the domains to the apIP */
+   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+
+   if (cfg.wifi_mode == WIFI_AP)
+      dnsServer.start(DNS_PORT, "*", ap_ip);
+   else
+      dnsServer.start(DNS_PORT, "*", WiFi.localIP()); 
+}
+
+void dns_loop(void) {
+   dnsServer.processNextRequest();
+}
+
+void dns_stop(void) {
+   dnsServer.stop();
+}
+
 WiFiEventHandler wifi_disconnected = WiFi.onStationModeDisconnected([]( const WiFiEventStationModeDisconnected& event) {
    Serial.println("Station disconnected");
    telnet_stop();
@@ -35,7 +59,7 @@ void wifi_loop(void) {
       MDNS.addService("http", "tcp", 80);
 #endif
    } else {
-      Serial.printf("Connection status: %d\n", WiFi.status());
+      Serial.printf("Connection status: %d\r\n", WiFi.status());
 #if	defined(USE_MDNS)
       MDNS.end();
 #endif
@@ -74,3 +98,38 @@ void wifi_stop(void) {
    http_stop();
    telnet_stop();
 }
+
+/** Is this an IP? */
+bool is_ip(String str) {
+   for (size_t i = 0; i < str.length(); i++) {
+      int c = str.charAt(i);
+
+      if (c != '.' && (c < '0' || c > '9')) {
+         return false;
+      }
+   }
+   return true;
+}
+
+/** IP to String? */
+String ip_to_string(IPAddress ip) {
+   String res = "";
+   for (int i = 0; i < 3; i++) {
+      res += String((ip >> (8 * i)) & 0xFF) + ".";
+   }
+   res += String(((ip >> 8 * 3)) & 0xFF);
+   return res;
+}
+#if	0
+/** Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
+bool captivePortal() {
+   if (!is_ip(httpServer.hostHeader()) && httpServer.hostHeader() != (String(cfg.hostname) + ".local")) {
+      Serial.print("* Request redirected to captive portal\r\n");
+      httpServer.sendHeader("Location", String("http://") + ip_to_string(server.client().localIP()), true);
+      httpserver.send(302, "text/plain", "");  // Empty content inhibits Content-length header so we have to close the socket ourselves.
+      httpServer.client().stop();              // Stop is needed because we sent no content length
+      return true;
+   }
+   return false;
+}
+#endif

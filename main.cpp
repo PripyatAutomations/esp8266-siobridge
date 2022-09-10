@@ -4,6 +4,8 @@
  * Try to be asynchronous where possible as this is a fast uc...
  */
 #include "siobridge.h"
+#include <GDBStub.h>
+
 int RESET_PIN = 0; // = GPIO0 on nodeMCU
 
 /* Should we reboot next loop? (For OTA */
@@ -13,7 +15,12 @@ void main_setup(void) {
    /* enable reset pin */
    pinMode(RESET_PIN, INPUT_PULLUP);
 
-   /* Setup serial console */
+   gdbstub_init();
+
+   /* save the flash writes */
+   WiFi.persistent(false);
+
+     /* Setup serial console */
    Serial.setRxBufferSize(1024);
    Serial.begin(115200);
 
@@ -22,7 +29,7 @@ void main_setup(void) {
        Serial.printf("%d... ", i);
        delay(1000);
    }
-   Serial.printf("\r\n\r\nesp8266-siobridge %s (%s) starting\r\n\r\n", VERSION, ESP.getSketchMD5());
+   Serial.printf("\r\n\r\nesp8266-siobridge %s (%x) starting\r\n\r\n", VERSION, ESP.getSketchMD5());
    Serial.printf("ChipID: %lu CoreVer: %s SDKVer: %s\r\n", ESP.getChipId(), ESP.getCoreVersion(), ESP.getSdkVersion());
    Serial.printf("CPUFreq: %dMHz\r\n", ESP.getCpuFreqMHz());
    Serial.printf("Last Reset Reason: %s\r\n", ESP.getResetReason());
@@ -33,9 +40,13 @@ void main_setup(void) {
    if (config_load() == true) {
       relay_setup();
       wifi_setup();
+      syslog_setup();
+      mdns_setup();
    } else { /* Present a fallback AP mode, so maybe user can fix it */
       wifi_stop();
+      mdns_stop();
       wifi_failsafe(false);
+      mdns_setup();
    }
 }
 
@@ -49,4 +60,5 @@ void main_loop(void) {
 
    wifi_loop();
    relay_loop();
+   mdns_loop();
 }

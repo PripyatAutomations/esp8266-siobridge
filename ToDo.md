@@ -6,3 +6,5 @@
 * Add config file support for redirecting ports to another
   - Should be make it bidirectional or rx/tx/bidi?
 * Finish stuff that's stubs
+
+? Add rs484/can support

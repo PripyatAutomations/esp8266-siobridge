@@ -9,7 +9,7 @@ HTTP_USR=admin
 HTTP_PWD=password
 OTA_PWD=admin
 
-LIBS += ESPAsyncTCP ESPAsyncWebServer
+LIBS += ESPAsyncTCP ESPAsyncWebServer esp8266_mdns EspSyslog ArduinoOTA GDBStub
 include *.mk
 world: all
 

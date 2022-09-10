@@ -9,6 +9,7 @@
 #include <ESP8266WiFiMulti.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <EspSyslog/Syslog.h>
 #include <FS.h>
 #include <string.h>
 #include <Hash.h>
@@ -21,7 +22,7 @@
 /* Use either SPIFFS or LittleFS, not both! */
 #define	USE_SPIFFS
 //#define USE_LITTLEFS
-
+//#define USE_MDNS
 /* Wait up to 300 seconds (5 minutes) in the WiFi config (AP) mode before restarting */
 #define AP_CONFIG_TIMEOUT 300
 #define AP_SSID   "REPEATER ADMIN"
@@ -34,11 +35,18 @@
 /* main.c */
 extern bool need_reboot;
 
+/* syslog */
+extern Syslog *logger;
+extern void syslog_setup(void);
+
 /* wifi stuff */
 extern ESP8266WiFiMulti wifiMulti;
 extern void wifi_setup(void), wifi_loop(void), wifi_stop(void);
 extern void wifi_add_ap(const char *ssid, const char *pass);
 extern void wifi_failsafe(int try_config);
+extern boolean is_ip(String str);
+extern String ip_to_string(IPAddress ip);
+extern bool captivePortal();
 
 /* telnet/http services */
 extern void telnet_loop(void), http_loop(void);
@@ -62,10 +70,11 @@ extern void flash_gc(void);
 extern void flash_dir(void);
 
 /* console */
-extern "C" {
-   extern const char *console_prompt(Stream *ch, const char *prompt);
-   extern const char *redact_password(const char *p);
-   extern bool show_menu(Stream *ch, const char *menu);
-};
+extern const char *console_prompt(Stream *ch, const char *prompt);
+extern const char *redact_password(const char *p);
+extern bool show_menu(Stream *ch, const char *menu);
+
+/* mdns service */
+extern void mdns_setup(void), mdns_stop(void), mdns_loop(void);
 
 #endif

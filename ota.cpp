@@ -4,7 +4,7 @@
  * This supports OTA updates from the async webserver
  */
 #include "siobridge.h"
-
+#include <ArduinoOTA.h>
 void ota_setup(void) {
 #if	defined(USE_SPIFFS)
         SPIFFS.end();

@@ -4,3 +4,9 @@
 [submodule "ESPAsyncWebServer"]
 	path = ESPAsyncWebServer
 	url = https://github.com/me-no-dev/ESPAsyncWebServer.git
+[submodule "esp8266_mdns"]
+	path = esp8266_mdns
+	url = https://github.com/mrdunk/esp8266_mdns.git
+[submodule "EspSyslog"]
+	path = EspSyslog
+	url = https://github.com/jerryr/EspSyslog.git

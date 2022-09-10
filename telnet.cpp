@@ -1,3 +1,6 @@
+/*
+ * Support for telnet console and telnet-per-port
+ */
 #include "siobridge.h"
 
 //#define MAX_SRV_CLIENTS 1
@@ -12,6 +15,8 @@ void AcceptConnection(void) {
    serverClient.write("esp8266-siobridge ");
    serverClient.write(VERSION);
    serverClient.write(" ready!\n");
+//   show_menu(serverClient, "main");
+//   console_prompt(serverClient, "Main> ");
 }
 
 void ManageConnected(void) {

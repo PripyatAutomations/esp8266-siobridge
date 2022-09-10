@@ -32,16 +32,17 @@ user_t *user_find(const char *user) {
     return NULL;
 }
 
-void user_del(const char *user) {
+bool user_delete(const char *user) {
     user_t *p = user_find(user);
 
     if (p == NULL) {
        Serial.printf("user_del(%s): Unknown user.\r\n", user);
-       return;
+       return false;
     }
 
     /* erase the user entry */
     memset(p, 0, sizeof(user_t));
+    return true;
 }
 
 bool user_authenticate(const char *user, const char *pass) {

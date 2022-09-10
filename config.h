@@ -4,6 +4,7 @@
 /* This should be setup so that RX-only and TX-only ports can happen */
 #define	MAX_PORTS	16
 #define	MAX_USERS	10
+#define	MAX_APS		4
 #define	L_ADMIN_USER	24
 #define	L_ADMIN_PASS	32
 #define	L_WIFI_SSID	32
@@ -38,6 +39,8 @@ struct Config {
    WiFiPhyMode_t wifi_type;
    float wifi_power;			/* wifi power in dBm */
    time_t wifi_timeout;
+   char hostname[128];
+   char syslog_host[128];		/* syslog server */
    char admin_user[L_ADMIN_USER];
    char admin_pass[L_ADMIN_PASS];
    sio_port_t ports[MAX_PORTS];
@@ -48,9 +51,9 @@ struct Config {
    int http_port;
 
    /* WiFi Client mode */
-   IPAddress wifi_cli_ip,
-             wifi_cli_gw,
-             wifi_cli_net;
+   IPAddress wifi_sta_ip,
+             wifi_sta_gw,
+             wifi_sta_net;
 
    /* WiFi Access Point mode */
    bool wifi_ap_hidden;
@@ -61,6 +64,15 @@ struct Config {
    IPAddress wifi_ap_ip,
              wifi_ap_gw,
              wifi_ap_net;
+};
+
+typedef struct AccessPoint AccessPoint;
+struct AccessPoint {
+   bool dhcp;
+   bool enabled;
+   IPAddress ip, gw, mask;
+   char ssid[L_WIFI_SSID];
+   char pass[L_WIFI_PASS];
 };
 
 extern bool config_load(void);

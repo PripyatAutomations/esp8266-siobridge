@@ -10,7 +10,7 @@ struct user {
 extern user_t users[MAX_USERS];
 extern user_t *user_add(const char *user, const char *pass);
 extern user_t *user_find(const char *user);
-extern void user_del(const char *user);
+extern bool user_delete(const char *user);
 extern bool user_authenticate(const char *user, const char *pass);
 
 #endif

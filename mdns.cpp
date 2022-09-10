@@ -3,7 +3,7 @@
  */
 #include "siobridge.h"
 #include "mdns.h"
-
+#if	0
 // When an mDNS packet gets parsed this callback gets called.
 void mdns_packet_cb(const mdns::MDns* packet){
   packet->Display();
@@ -62,3 +62,4 @@ void printWifiStatus() {
   Serial.print("IP Address: ");
   Serial.println(ip);
 }
+#endif

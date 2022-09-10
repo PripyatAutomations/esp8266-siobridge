@@ -4,9 +4,15 @@
  * Eventually we will clean this up more...
  */
 #include "siobridge.h"
-static const char *s_connected = "connected";
-static const char *s_disconnected = "disconencted";
-const char *redacted_pass = "*****";
+
+#include "cmd_admin.h"
+#include "cmd_wifi.h"
+#include "cmd_user.h"
+#include "cmd_port.h"
+#include "menu_layout.h"
+const char *s_connected = "connected";
+const char *s_disconnected = "disconencted";
+const char *s_redacted = "*****";
 
 const char *sio_connected(int port) {
    if (cfg.ports[port].refcnt > 0)
@@ -16,7 +22,7 @@ const char *sio_connected(int port) {
 }
 
 unsigned int sio_baud(int port) {
-   return  cfg.ports[port].baud_rate;
+   return cfg.ports[port].baud_rate;
 }
 
 unsigned int sio_unread_buffers(int port) {
@@ -31,136 +37,6 @@ const char *sio_bits(int port) {
 ///////////////////////////////////////////
 /* Internal bits below here, Not exposed */
 ///////////////////////////////////////////
-static bool cmd_connect(Stream *ch, const char *args[]) {
-}
-
-/*
- * cmd_info: System information display
- */
-static bool cmd_info(Stream *ch, const char *args[]) {
-   ch->printf("**************************\r\n");
-   ch->printf("* esp8266-siobridge info *\r\n");
-   ch->printf("**************************\r\n");
-   ch->printf("\r\n");
-   ch->printf("Serial Ports:\r\n");
-
-   for (int i = 0; i < (MAX_PORTS - 1); i++)
-      ch->printf("\tsio%d: %s <%s@%d>\n", i, sio_connected(i), sio_unread_buffers(i), sio_baud(i));
-
-   ch->printf("\r\n");
-   ch->printf("WiFi Status:\r\n");
-   if (cfg.wifi_mode == WIFI_AP || cfg.wifi_mode == WIFI_AP_STA)
-      ch->printf("\tAP - SSID: \"%s\" PASS: \"%s\"\r\n", cfg.wifi_ap_ssid, redact_password(cfg.wifi_ap_pass));
-//   if (cfg.wifi_mode == WIFI_STA || cfg.wifi_mode == WIFI_AP_STA)
-//   ch->printf("\tSTA - SSID: \"%s\" PASS: \"%s\"\r\n", cfg.wifi_sta_ssid, redact_password(cfg.wifi_sta_pass));
-   /* XXX: print client networks */
-}
-
-
-static bool cmd_restart(Stream *ch, const char *args[]) {
-   ch->println("* Restarting!");
-   ESP.restart();
-}
-
-static bool cmd_wifi_dhcp(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_dns(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_ip(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_gateway(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_netmask(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_ntp(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_ap(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_sta(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_staent(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_syslog(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_ap_pass(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_ap_ssid(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_ap_timeout(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_sta_add_ap(Stream *ch, const char *args[]) {
-   wifi_add_ap(args[0], args[1]);
-}
-
-static bool cmd_wifi_sta_del_ap(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_wifi_sta_list_aps(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_logout(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_user_add(Stream *ch, const char *args[]) {
-   user_t *up = user_add(args[0], args[1]);
-
-   if (up != NULL) {
-      return true;
-   }
-   return false;
-}
-
-static bool cmd_user_list(Stream *ch, const char *args[]) {
-   user_t *u;
-
-   for (int i = 0; i < MAX_USERS; i++) {
-      u = &users[i];
-
-      if (u->user[0] != '\0')
-         ch->printf("User<%d>: %s <%s> %sabled\r\n", i, u->user, privilege_str(u), (u->disabled == false ? "en" : "dis"));
-   }
-}
-
-static bool cmd_user_delete(Stream *ch, const char *args[]) {
-   return user_delete(args[0]);
-}
-
-static bool cmd_port_add(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_port_delete(Stream *ch, const char *args[]) {
-}
-
-static bool cmd_port_list(Stream *ch, const char *args[]) {
-   sio_port_t *p;
-
-   for (int i = 0; i < MAX_PORTS; i++) {
-      p = &cfg.ports[i];
-
-      if (p->configured) {
-         ch->printf("sio%d: %d%c%d@%d (Pins: tx=%d,rx=%d,dtr=%d,rts=%d,cts=%d) %sabled telnet port: %d refcnt: %d (%d unread)\r\n", i,
-                    p->data_bits, parity_to_str(p->parity), p->stop_bits, p->baud_rate,
-                    p->tx_pin, p->rx_pin, p->dtr_pin, p->rts_pin, p->cts_pin,
-                    p->telnet_port, p->refcnt, p->unread_buffers,
-                    (p->enabled == false ? "en" : "dis"));
-      }
-   }
-}
-
-#include "menu_layout.h"
 
 ///////////////////
 void menu_print(Stream *ch, const char *menu[]) {
@@ -197,7 +73,7 @@ const char *console_prompt(Stream *ch, const char *prompt) {
 /* Simple mechanism to avoid showing passwords on the console, if needed */
 const char *redact_password(const char *p) {
    if (cfg.redact_passwords)
-      return redacted_pass;
+      return s_redacted;
    return p;
 }
 
@@ -213,13 +89,13 @@ bool show_menu(Stream *ch, const char *menu) {
    }
    
    if (!mp) {
-      Serial.printf("show_menu(%s) failed.\r\n", menu);
+      ch->printf("show_menu(%s) failed.\r\n", menu);
       return false;
    }
 
    int i = 0;
    while (mp->help[i] != NULL) {
-      Serial.printf("%s\r\n", mp->help[i]);
+      ch->printf("%s\r\n", mp->help[i]);
       i++;
    }
    console_prompt(ch, menu);

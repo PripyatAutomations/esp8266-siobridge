@@ -41,12 +41,12 @@ void main_setup(void) {
       relay_setup();
       wifi_setup();
       syslog_setup();
-      mdns_setup();
+//      mdns_setup();
    } else { /* Present a fallback AP mode, so maybe user can fix it */
       wifi_stop();
-      mdns_stop();
+//      mdns_stop();
       wifi_failsafe(false);
-      mdns_setup();
+//      mdns_setup();
    }
 }
 
@@ -60,5 +60,5 @@ void main_loop(void) {
 
    wifi_loop();
    relay_loop();
-   mdns_loop();
+//   mdns_loop();
 }

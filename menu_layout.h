@@ -1,21 +1,3 @@
-
-//////////////////////////////
-// Menu Structure and Helps //
-//////////////////////////////
-typedef struct MenuItem MenuItem;
-struct MenuItem {
-   const char key;
-   bool (*func)(Stream *ch, const char *args[]);
-   const MenuItem *submenu;
-};
-
-typedef struct Menu Menu;
-struct Menu {
-   char name[16];
-   MenuItem *menu;
-   const char **help;
-};
-
 extern MenuItem menu_setup[], menu_wifi[];
 static const char *menu_main_help[] = {
    "**********************************\r\n",

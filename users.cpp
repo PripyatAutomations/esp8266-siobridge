@@ -45,7 +45,7 @@ bool user_delete(const char *user) {
     return true;
 }
 
-bool user_authenticate(const char *user, const char *pass) {
+bool user_authenticate(Stream *ch, const char *user, const char *pass) {
     user_t *u = user_find(user);
 
     if (u == NULL) {
@@ -54,8 +54,23 @@ bool user_authenticate(const char *user, const char *pass) {
     }
 
     if (strcasecmp(u->pass, pass) == 0) {
-       Serial.printf("succesful login from %s\r\n", user);
+       Serial.printf("succesful login from %s (%s)\r\n", user, privilege_str(u));
+       ch->printf("You are logged in as %s with %s privileges.\r\n", u->user, privilege_str(u));
        return true;
     }
     return false;
+}
+
+const char *s_privs_super = "ADMIN";
+const char *s_privs_readonly = "ReadOnly";
+const char *s_privs_normal = "User";
+
+const char *privilege_str(user_t *u) {
+   if (u->readonly)
+      return s_privs_readonly;
+
+   if (u->superuser)
+      return s_privs_super;
+
+   return s_privs_normal;
 }

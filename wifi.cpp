@@ -120,7 +120,8 @@ String ip_to_string(IPAddress ip) {
    res += String(((ip >> 8 * 3)) & 0xFF);
    return res;
 }
-#if	0
+
+#if	defined(USE_CAPTIVE_PORTAL)
 /** Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
 bool captivePortal() {
    if (!is_ip(httpServer.hostHeader()) && httpServer.hostHeader() != (String(cfg.hostname) + ".local")) {

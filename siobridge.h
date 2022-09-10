@@ -16,21 +16,7 @@
 #include <functional>
 #include "config.h"
 #include "users.h"
-
-#define	SIO_DEBUG	1
-
-/* Use either SPIFFS or LittleFS, not both! */
-#define	USE_SPIFFS
-//#define USE_LITTLEFS
-//#define USE_MDNS
-/* Wait up to 300 seconds (5 minutes) in the WiFi config (AP) mode before restarting */
-#define AP_CONFIG_TIMEOUT 300
-#define AP_SSID   "REPEATER ADMIN"
-#define	AP_PASS	  ""
-#define	AP_CHAN	  1
-#define	AP_HIDDEN false
-#define ADMIN_USER "admin"
-#define ADMIN_PASS "admin"
+#define	STRINGIFY(x)	#x
 
 /* main.c */
 extern bool need_reboot;

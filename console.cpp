@@ -124,10 +124,26 @@ static bool cmd_user_add(Stream *ch, const char *args[]) {
 }
 
 static bool cmd_user_list(Stream *ch, const char *args[]) {
+   user_t *u;
+
+   for (int i = 0; i < MAX_USERS; i++) {
+      u = &users[i];
+
+      if (u->user[0] != '\0')
+         ch->printf("User<%d>: %s <%s> %sabled\r\n", i, u->user, privilege_str(u), (u->disabled == false ? "en" : "dis"));
+   }
 }
 
 static bool cmd_user_delete(Stream *ch, const char *args[]) {
    return user_delete(args[0]);
+}
+
+static bool cmd_port_add(Stream *ch, const char *args[]) {
+}
+static bool cmd_port_delete(Stream *ch, const char *args[]) {
+}
+
+static bool cmd_port_list(Stream *ch, const char *args[]) {
 }
 
 #include "menu_layout.h"

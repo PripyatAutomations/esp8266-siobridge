@@ -1,6 +1,23 @@
 #if	!defined(_SIOBRIDGE_CONFIG_H)
 #define	_SIOBRIDGE_CONFIG_H
 
+/* Enable debugging? */
+#define	SIO_DEBUG
+
+/* Use either SPIFFS or LittleFS, not both! */
+#define	USE_SPIFFS
+//#define USE_LITTLEFS
+//#define USE_MDNS
+//#define USE_CAPTIVE_PORTAL
+/* Wait up to 300 seconds (5 minutes) in the WiFi config (AP) mode before restarting */
+#define AP_CONFIG_TIMEOUT 300
+#define AP_SSID   "REPEATER ADMIN"
+#define	AP_PASS	  ""
+#define	AP_CHAN	  1
+#define	AP_HIDDEN false
+#define ADMIN_USER "admin"
+#define ADMIN_PASS "admin"
+
 /* This should be setup so that RX-only and TX-only ports can happen */
 #define	MAX_PORTS	16
 #define	MAX_USERS	10

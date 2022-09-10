@@ -108,7 +108,7 @@ bool config_load(void) {
               cfg.wifi_mode = WIFI_AP;
            } else if (strncasecmp(vp, "sta", 3) == 0) {
               cfg.wifi_mode = WIFI_STA;
-           } else if (strncasecmp(vp, "auto", 4) == 0) {
+           } else if (strncasecmp(vp, "both", 4) == 0) {
               cfg.wifi_mode = WIFI_AP_STA;
            } else
               Serial.printf("malformed line: config.txt:%d", line);

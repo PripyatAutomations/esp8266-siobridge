@@ -21,9 +21,11 @@ static const char *menu_main_help[] = {
    "**********************************\r\n",
    "* esp8266-siobridge console help *\r\n",
    "**********************************\r\n\r\n",
-   " C <#>\tConnect to port <#>\r\n",
-   " I    \tInformation screen\r\n",
-   " S    \tSetup Menu\r\n",
+   " C #\tConnect to port <#>\r\n",
+   " I\tInformation screen\r\n",
+   " S\tSetup Menu\r\n",
+   "\r\n",
+   "X\tLogout\r\n",
    NULL
 };
 
@@ -35,19 +37,20 @@ MenuItem menu_main[] = {
    { 0, NULL, NULL }
 };
 
-
 //////////////////////////////
 static const char *menu_wifi_ap_help[] = {
    "***********\r\n",
    "* WiFi AP *\r\n",
    "***********\r\n",
+   " This menu allows you to configure the Access Point mode.\r\n",
+   " AP mode is only active if wifi_mode is 'both' or 'ap'\r\n",
    "\r\n",
    "S\tSSID\r\n",
    "P\tPassword\r\n",
    "T\tTimeout\r\n",
    "\r\n",
    "Q\tBack to Wifi Menu\r\n",
-   "X\tBack to Main Menu\r\n",
+   "X\tBack to setup menu\r\n",
    NULL
 };
 
@@ -56,24 +59,25 @@ MenuItem menu_wifi_ap[] = {
    { 'S', cmd_wifi_ap_ssid, NULL },
    { 'T', cmd_wifi_ap_timeout, NULL },
    { 'Q', NULL, menu_wifi },
-   { 'X', NULL, menu_main },
+   { 'X', NULL, menu_setup },
    { 0, NULL, NULL },
 };
-
-
 
 //////////////////////////////
 static const char *menu_wifi_sta_help[] = {
    "****************\r\n"
    "* WiFi Station *\r\n",
    "****************\r\n",
+   " The siobridge can store up ",
+   STRINGIFY(MAX_APS),
+   " access points and auto connect to the strongest one.",
    "\r\n",
    "A\tAdd AP\r\n",
    "D\tDelete AP\r\n",
    "L\tList APs (with passwords)\r\n",
    "\r\n",
    "Q\tBack to Wifi Menu\r\n",
-   "X\tBack to Main Menu\r\n",
+   "X\tBack to setup menu\r\n",
    NULL
 };
 
@@ -82,7 +86,7 @@ MenuItem menu_wifi_sta[] = {
    { 'D', cmd_wifi_sta_del_ap, NULL },
    { 'L', cmd_wifi_sta_list_aps, NULL },
    { 'Q', NULL, menu_wifi },
-   { 'X', NULL, menu_main },
+   { 'X', NULL, menu_setup },
    { 0, NULL, NULL },
 };
 
@@ -106,6 +110,8 @@ static const char *menu_wifi_help[] = {
    "T\tTime (NTP) servers\r\n",
    "L\tLog servers\r\n",
    "N\tDNS servers\r\n",
+   "\r\n",
+   "X\tBack to setup menu\r\n",
    NULL
 };
 
@@ -119,7 +125,7 @@ MenuItem menu_wifi[] = {
    { 'M', cmd_wifi_netmask, NULL },
    { 'N', cmd_wifi_dns, NULL },
    { 'T', cmd_wifi_ntp, NULL },
-   { 'X', NULL, menu_main },
+   { 'X', NULL, menu_setup },
    { 0, NULL, NULL },
 };
 
@@ -132,7 +138,7 @@ static const char *menu_users_help[] = {
    "D\tDelete User\r\n",
    "L\tList Users\r\n",
    "\r\n",
-   "X\tMain Menu\r\n",
+   "X\tBack to setup menu\r\n",
    NULL
 };
 
@@ -140,7 +146,29 @@ MenuItem menu_users[] = {
    { 'A', cmd_user_add, NULL },
    { 'D', cmd_user_delete, NULL },
    { 'L', cmd_user_list, NULL },
-   { 'X', NULL, menu_main },
+   { 'X', NULL, menu_setup },
+   { 0, NULL, NULL }
+};
+
+//////////////////////////////
+static const char *menu_ports_help[] = {
+  "**************\r\n",
+  "* Port Setup *\r\n"
+  "**************\r\n",
+  "\r\n",
+  "A\tAdd Port\r\n",
+  "D\tDelete Port\r\n",
+  "L\tList Ports\r\n",
+  "\r\n",
+  "X\tBack to setup menu\r'n",
+  NULL
+};
+
+MenuItem menu_ports[] = {
+   { 'A', cmd_port_add, NULL },
+   { 'D', cmd_port_delete, NULL },
+   { 'L', cmd_port_list, NULL },
+   { 'X', NULL, menu_setup },
    { 0, NULL, NULL }
 };
 
@@ -150,35 +178,19 @@ static const char *menu_setup_help[] = {
    "* esp8266-siobridge setup *\r\n",
    "***************************\r\n",
    "\r\n",
-   "* serial ports *\r\n",
-   "0-F\tsio<#> setup (1-16)\r\n",
-   "\r\n",
+   "P\tPort setup\r\n",
    "W\tWiFi setup\r\n",
    "\r\n",
    "* admin tasks *\r\n",
    "U\tUser Management\r\n",
    "R\tRestart bridge\r\n",
-   "X\tLeave setup menu\r\n",
+   "\r\n",
+   "X\tBack to main menu\r\n",
    NULL
 };
 
 MenuItem menu_setup[] = {
-   { '0', cmd_connect, NULL },
-   { '1', cmd_connect, NULL },
-   { '2', cmd_connect, NULL },
-   { '3', cmd_connect, NULL },
-   { '4', cmd_connect, NULL },
-   { '5', cmd_connect, NULL },
-   { '6', cmd_connect, NULL },
-   { '7', cmd_connect, NULL },
-   { '8', cmd_connect, NULL },
-   { '9', cmd_connect, NULL },
-   { 'A', cmd_connect, NULL },
-   { 'B', cmd_connect, NULL },
-   { 'C', cmd_connect, NULL },
-   { 'D', cmd_connect, NULL },
-   { 'E', cmd_connect, NULL },
-   { 'F', cmd_connect, NULL },
+   { 'P', NULL, menu_ports },
    { 'R', cmd_restart, NULL },
    { 'U', NULL, menu_users },
    { 'W', NULL, menu_wifi },
@@ -186,11 +198,10 @@ MenuItem menu_setup[] = {
    { 0, NULL, NULL },
 };
 
-
 //////////////////////////////
-
 Menu menus[] = {
   { "main",  menu_main, menu_main_help },
+  { "ports", menu_ports, menu_ports_help },
   { "setup", menu_setup, menu_setup_help },
   { "users", menu_users, menu_users_help },
   { "wifi", menu_wifi, menu_wifi_help },

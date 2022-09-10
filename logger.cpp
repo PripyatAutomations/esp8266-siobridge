@@ -1,5 +1,6 @@
 /*
- * support logging to a syslog server
+ * support logging to a a few places
+ *	Targets: syslog console flash
  */
 #include "siobridge.h"
 #include <stdarg.h>

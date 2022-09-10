@@ -1,3 +1,5 @@
+This project is still very young and is not yet ready for use. Feel free to dive in and help out!
+
 What it is?
 -----------
 esp8266-siobridge is a simple serial to telnet and http bridge for your

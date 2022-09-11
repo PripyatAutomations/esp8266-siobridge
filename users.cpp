@@ -60,17 +60,3 @@ bool user_authenticate(Stream *ch, const char *user, const char *pass) {
     }
     return false;
 }
-
-const char *s_privs_super = "ADMIN";
-const char *s_privs_readonly = "ReadOnly";
-const char *s_privs_normal = "User";
-
-const char *privilege_str(user_t *u) {
-   if (u->readonly)
-      return s_privs_readonly;
-
-   if (u->superuser)
-      return s_privs_super;
-
-   return s_privs_normal;
-}

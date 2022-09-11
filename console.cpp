@@ -6,52 +6,11 @@
 #include "siobridge.h"
 
 #include "cmd_admin.h"
+#include "cmd_port.h"
+#include "cmd_session.h"
 #include "cmd_wifi.h"
 #include "cmd_user.h"
-#include "cmd_port.h"
 #include "menu_layout.h"
-const char *s_connected = "connected";
-const char *s_disconnected = "disconencted";
-const char *s_redacted = "*****";
-
-const char *sio_connected(int port) {
-   if (cfg.ports[port].refcnt > 0)
-      return s_connected;
-
-   return s_disconnected;
-}
-
-unsigned int sio_baud(int port) {
-   return cfg.ports[port].baud_rate;
-}
-
-unsigned int sio_unread_buffers(int port) {
-   return cfg.ports[port].unread_buffers;
-}
-
-const char *sio_bits(int port) {
-   /* yuck... this is going to be big... */
-   return "8N1";
-}
-
-///////////////////////////////////////////
-/* Internal bits below here, Not exposed */
-///////////////////////////////////////////
-
-///////////////////
-void menu_print(Stream *ch, const char *menu[]) {
-   if (menu == NULL) {
-      ch->printf("menu_print: NULL menu passed\r\n");
-      return;
-   }
-
-   for (int i = 0; i < (sizeof(menu) / sizeof(menu[0])); i++) {
-      if (menu[i] == NULL)
-         return;
-
-      ch->printf(menu[i]);
-   }
-}
 
 /* Print a prompt and read the user input then return it */
 const char *console_prompt(Stream *ch, const char *prompt) {
@@ -70,15 +29,7 @@ const char *console_prompt(Stream *ch, const char *prompt) {
     return s;
 }
 
-/* Simple mechanism to avoid showing passwords on the console, if needed */
-const char *redact_password(const char *p) {
-   if (cfg.redact_passwords)
-      return s_redacted;
-   return p;
-}
-
-/* display the menu - returns false if errors */
-bool show_menu(Stream *ch, const char *menu) {
+bool show_help(Stream *ch, const char *menu) {
    const Menu *mp = NULL;
 
    for (int i = 0; menus[i].name != NULL; i++) {
@@ -89,7 +40,7 @@ bool show_menu(Stream *ch, const char *menu) {
    }
    
    if (!mp) {
-      ch->printf("show_menu(%s) failed.\r\n", menu);
+      ch->printf("* show_help(%s) failed.\r\n", menu);
       return false;
    }
 
@@ -98,6 +49,32 @@ bool show_menu(Stream *ch, const char *menu) {
       ch->printf("%s\r\n", mp->help[i]);
       i++;
    }
-   console_prompt(ch, menu);
+}
+
+/* display the menu - returns false if errors */
+bool show_menu(Stream *ch, const char *menu) {
+   const Menu *mp = NULL;
+   const char *r = NULL;
+
+   for (int i = 0; menus[i].name != NULL; i++) {
+       if (strcasecmp(menu, menus[i].name) == 0) {
+          mp = &menus[i];
+          break;
+       }
+   }
+   
+   if (!mp) {
+      ch->printf("* show_menu(%s) failed.\r\n", menu);
+      return false;
+   }
+
+   show_help(ch, menu);
+
+   while(true) {
+      r = console_prompt(ch, menu);
+
+      if (r == NULL)
+         break;
+   }
    return true;
 }

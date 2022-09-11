@@ -99,28 +99,6 @@ void wifi_stop(void) {
    telnet_stop();
 }
 
-/** Is this an IP? */
-bool is_ip(String str) {
-   for (size_t i = 0; i < str.length(); i++) {
-      int c = str.charAt(i);
-
-      if (c != '.' && (c < '0' || c > '9')) {
-         return false;
-      }
-   }
-   return true;
-}
-
-/** IP to String? */
-String ip_to_string(IPAddress ip) {
-   String res = "";
-   for (int i = 0; i < 3; i++) {
-      res += String((ip >> (8 * i)) & 0xFF) + ".";
-   }
-   res += String(((ip >> 8 * 3)) & 0xFF);
-   return res;
-}
-
 #if	defined(USE_CAPTIVE_PORTAL)
 /** Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
 bool captivePortal() {

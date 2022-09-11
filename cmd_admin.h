@@ -1,3 +1,6 @@
+#if	!defined(_SIOBRIDGE_cmd_admin_h)
+#define	_SIOBRIDGE_cmd_admin_h
+
 /*
  * cmd_info: System information display
  */
@@ -21,10 +24,12 @@ static bool cmd_info(Stream *ch, const char *args[]) {
 }
 
 
+/*
+ * cmd_restart: Restart the device
+ */
 static bool cmd_restart(Stream *ch, const char *args[]) {
    ch->println("* Restarting!");
    ESP.restart();
 }
 
-static bool cmd_logout(Stream *ch, const char *args[]) {
-}
+#endif

@@ -5,10 +5,10 @@
  */
 #include "siobridge.h"
 
-void relay_setup(void) {
+void forwarding_setup(void) {
 }
 
-void relay_loop(void) {
+void forwarding_loop(void) {
 #if	0
     //check clients for data
     //get data from the telnet client and push it to the UART

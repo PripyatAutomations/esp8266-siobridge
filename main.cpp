@@ -29,18 +29,19 @@ void main_setup(void) {
        Serial.printf("%d... ", i);
        delay(1000);
    }
-   Serial.printf("\r\n\r\nesp8266-siobridge %s (%x) starting\r\n\r\n", VERSION, ESP.getSketchMD5());
-   Serial.printf("ChipID: %lu CoreVer: %s SDKVer: %s\r\n", ESP.getChipId(), ESP.getCoreVersion(), ESP.getSdkVersion());
-   Serial.printf("CPUFreq: %dMHz\r\n", ESP.getCpuFreqMHz());
-   Serial.printf("Last Reset Reason: %s\r\n", ESP.getResetReason());
-   Serial.printf("SketchSize: %lu Free space: %lu HeapFrag: %lu MaxFreeBlock: %lu\r\n", ESP.getSketchSize(), ESP.getFreeSketchSpace(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
-   flash_init();
+   Serial.printf("\r\n\r\n* esp8266-siobridge %s (%x) starting\r\n\r\n", VERSION, ESP.getSketchMD5());
+   Serial.printf("* ChipID: %lu CoreVer: %s SDKVer: %s\r\n", ESP.getChipId(), ESP.getCoreVersion(), ESP.getSdkVersion());
+   Serial.printf("* CPUFreq: %dMHz\r\n", ESP.getCpuFreqMHz());
+   Serial.printf("* Last Reset Reason: %s\r\n", ESP.getResetReason());
+   Serial.printf("* SketchSize: %lu Free space: %lu HeapFrag: %lu MaxFreeBlock: %lu\r\n", ESP.getSketchSize(), ESP.getFreeSketchSpace(), ESP.getHeapFragmentation(), ESP.getMaxFreeBlockSize());
+   flash_setup();
 
    /* If loading config is successful, start wifi */
    if (config_load() == true) {
-      relay_setup();
+      forwarding_setup();
       wifi_setup();
       syslog_setup();
+      ntp_setup();
 //      mdns_setup();
    } else { /* Present a fallback AP mode, so maybe user can fix it */
       wifi_stop();
@@ -59,6 +60,7 @@ void main_loop(void) {
    }
 
    wifi_loop();
-   relay_loop();
+   ntp_loop();
+   forwarding_loop();
 //   mdns_loop();
 }

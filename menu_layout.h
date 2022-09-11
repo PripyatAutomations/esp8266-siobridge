@@ -1,3 +1,6 @@
+#if	!defined(_SIOBRIDGE_menu_layout_h)
+#define	_SIOBRIDGE_menu_layout_h
+
 extern MenuItem menu_setup[], menu_wifi[];
 static const char *menu_main_help[] = {
    "**********************************\r\n",
@@ -191,3 +194,5 @@ Menu menus[] = {
   { "wifi_sta", menu_wifi_sta, menu_wifi_sta_help },
   { NULL, NULL, NULL }
 };
+
+#endif

@@ -9,7 +9,7 @@ SPIFFSConfig FScfg;
 LittleFSConfig FScfg
 #endif
 
-void flash_init() {
+void flash_setup(void) {
    uint32_t realSize = ESP.getFlashChipRealSize();
    uint32_t ideSize = ESP.getFlashChipSize();
    FlashMode_t ideMode = ESP.getFlashChipMode();

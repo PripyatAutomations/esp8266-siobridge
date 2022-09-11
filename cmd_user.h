@@ -1,3 +1,6 @@
+#if	!defined(_SIOBRIDGE_cmd_user_h)
+#define	_SIOBRIDGE_cmd_user_h
+
 static bool cmd_user_add(Stream *ch, const char *args[]) {
    user_t *up = user_add(args[0], args[1]);
 
@@ -21,3 +24,5 @@ static bool cmd_user_list(Stream *ch, const char *args[]) {
 static bool cmd_user_delete(Stream *ch, const char *args[]) {
    return user_delete(args[0]);
 }
+
+#endif

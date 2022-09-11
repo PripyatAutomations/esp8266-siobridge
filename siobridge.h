@@ -15,7 +15,6 @@
 #include <functional>
 #include "config.h"
 #include "users.h"
-#define	STRINGIFY(x)	#x
 
 extern bool need_reboot;
 
@@ -27,5 +26,7 @@ extern bool need_reboot;
 #include "sessions.h"
 #include "forwarding.h"
 #include "console.h"
+#include "utility.h"
+#include "ntp.h"
 
 #endif

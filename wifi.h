@@ -1,3 +1,6 @@
+#if	!defined(_SIOBRIDGE_wifi_h)
+#define	_SIOBRIDGE_wifi_h
+
 /* wifi stuff */
 extern ESP8266WiFiMulti wifiMulti;
 extern void wifi_setup(void), wifi_loop(void), wifi_stop(void);
@@ -7,3 +10,4 @@ extern boolean is_ip(String str);
 extern String ip_to_string(IPAddress ip);
 extern bool captivePortal();
 
+#endif

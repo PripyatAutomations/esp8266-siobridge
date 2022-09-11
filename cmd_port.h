@@ -1,3 +1,6 @@
+#if	!defined(_SIOBRIDGE_cmd_port_h)
+#define	_SIOBRIDGE_cmd_port_h
+
 static bool cmd_port_add(Stream *ch, const char *args[]) {
 }
 
@@ -23,3 +26,5 @@ static bool cmd_port_list(Stream *ch, const char *args[]) {
 static bool cmd_connect(Stream *ch, const char *args[]) {
    return false;
 }
+
+#endif

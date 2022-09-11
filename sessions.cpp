@@ -25,7 +25,6 @@ bool session_end(session_t *s) {
       session_detach_port(s, &cfg.ports[i]);
    }
    memset(s, 0, sizeof(session_t));
-   free(s);
 }
 
 bool session_attach_port(session_t *session, sio_port_t *port) {
@@ -34,4 +33,12 @@ bool session_attach_port(session_t *session, sio_port_t *port) {
 
 bool session_detach_port(session_t *session, sio_port_t *port) {
    return true;
+}
+
+session_t *session_find(Stream *ch) {
+   for (int i = 0; i < MAX_SESSIONS; i++) {
+      if (sessions[i].chan == ch)
+         return &sessions[i];
+   }
+   return NULL;
 }

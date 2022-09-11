@@ -1,3 +1,6 @@
+#if	!defined(_SIOBRIDGE_cmd_wifi_h)
+#define	_SIOBRIDGE_cmd_wifi_h
+
 static bool cmd_wifi_dhcp(Stream *ch, const char *args[]) {
 }
 
@@ -46,3 +49,5 @@ static bool cmd_wifi_sta_del_ap(Stream *ch, const char *args[]) {
 
 static bool cmd_wifi_sta_list_aps(Stream *ch, const char *args[]) {
 }
+
+#endif

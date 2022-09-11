@@ -9,6 +9,10 @@
 //#define USE_LITTLEFS
 //#define USE_MDNS
 //#define USE_CAPTIVE_PORTAL
+
+/*********************
+ * Failsafe Settings *
+ *********************/
 /* Wait up to 300 seconds (5 minutes) in the WiFi config (AP) mode before restarting */
 #define AP_CONFIG_TIMEOUT 300
 #define AP_SSID   "REPEATER ADMIN"
@@ -55,24 +59,23 @@ struct sio_port {
 typedef struct Config Config_t;
 struct Config {
    WiFiMode wifi_mode;
-   WiFiPhyMode_t wifi_type;
+   WiFiPhyMode_t wifi_phymode;
    float wifi_power;			/* wifi power in dBm */
-   time_t wifi_timeout;
-   char hostname[128];
-   char syslog_host[128];		/* syslog server */
+   int wifi_timeout;
    char admin_user[L_ADMIN_USER];
    char admin_pass[L_ADMIN_PASS];
+   char wifi_mac[13];
+   char hostname[128];
+   char syslog_host[128];		/* syslog server(s) */
+   char ntp_host[128];			/* time server(s) */
+   char dns_host[128];			/* dns server(s) */
    sio_port_t ports[MAX_PORTS];
+
    /* show *'s instead of passwords in info? */
    bool redact_passwords;
 
    /* http */
    int http_port;
-
-   /* WiFi Client mode */
-   IPAddress wifi_sta_ip,
-             wifi_sta_gw,
-             wifi_sta_net;
 
    /* WiFi Access Point mode */
    bool wifi_ap_hidden;
@@ -90,8 +93,24 @@ struct AccessPoint {
    bool dhcp;
    bool enabled;
    IPAddress ip, gw, mask;
+   IPAddress dns1, dns2, dns3;
    char ssid[L_WIFI_SSID];
    char pass[L_WIFI_PASS];
+};
+
+typedef struct config_item config_item_t;
+enum config_item_type { T_NONE = 0, T_CHAR, T_INT, T_BOOL, T_FLOAT, T_FUNC };
+
+struct config_item {
+   char key[24];
+   enum config_item_type valtype;
+   bool (*func)(const char *key, const char *val, int line);
+   bool (*dump_func)(Stream *ch);
+   /* */
+   int *ival;
+   char *cval;
+   bool *bval;
+   float *fval;
 };
 
 extern bool config_load(void);

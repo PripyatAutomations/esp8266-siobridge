@@ -7,6 +7,7 @@
 #include "cfg_general.h"
 #include "cfg_ports.h"
 #include "cfg_ap.h"
+#include "cfg_ports.h"
 
 Config_t cfg;
 AccessPoint aps[MAX_APS];
@@ -145,6 +146,10 @@ bool config_load(void) {
       *(vp - 1) = '\0';
 
       if (strncasecmp(section, "general", 7) == 0) {
+        config_parse_line(config_items_general, bp, vp, line);
+      } else if (strncasecmp(section, "ap", 2) == 0) {
+        config_parse_line(config_items_general, bp, vp, line);
+      } else if (strncasecmp(section, "ports", 5) {
         config_parse_line(config_items_general, bp, vp, line);
       } else if (strncasecmp(section, "users", 5) == 0) {
          user_add(bp, vp);

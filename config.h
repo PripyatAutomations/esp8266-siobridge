@@ -32,6 +32,22 @@
 #define	L_WIFI_SSID	32
 #define	L_WIFI_PASS	32
 
+
+typedef struct config_item config_item_t;
+enum config_item_type { T_NONE = 0, T_CHAR, T_INT, T_BOOL, T_FLOAT, T_FUNC };
+
+struct config_item {
+   char key[24];
+   enum config_item_type valtype;
+   bool (*func)(const char *key, const char *val, int line);
+   bool (*dump_func)(Stream *ch);
+   /* */
+   int *ival;
+   char *cval;
+   bool *bval;
+   float *fval;
+};
+
 enum sio_parity { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
 typedef enum sio_parity sio_parity_t;
 
@@ -40,6 +56,7 @@ struct sio_port {
    bool configured, enabled;
    unsigned int tx_pin, rx_pin;
    unsigned int dtr_pin, cts_pin, rts_pin;
+   config_item_t *ci;			/* mutated config_item_t structure */
    int telnet_port;
    int refcnt;			/* connected users */
    int unread_buffers;		/* saved data waiting to be read? */
@@ -55,6 +72,7 @@ struct sio_port {
    /* can use admin commands? */
    bool trusted;
 };
+
 
 typedef struct Config Config_t;
 struct Config {
@@ -88,33 +106,22 @@ struct Config {
              wifi_ap_net;
 };
 
+
 typedef struct AccessPoint AccessPoint;
 struct AccessPoint {
    bool dhcp;
    bool enabled;
+   char s_ip[16], s_gw[16], s_mask[16];
    IPAddress ip, gw, mask;
    IPAddress dns1, dns2, dns3;
    char ssid[L_WIFI_SSID];
    char pass[L_WIFI_PASS];
-};
-
-typedef struct config_item config_item_t;
-enum config_item_type { T_NONE = 0, T_CHAR, T_INT, T_BOOL, T_FLOAT, T_FUNC };
-
-struct config_item {
-   char key[24];
-   enum config_item_type valtype;
-   bool (*func)(const char *key, const char *val, int line);
-   bool (*dump_func)(Stream *ch);
-   /* */
-   int *ival;
-   char *cval;
-   bool *bval;
-   float *fval;
+   config_item_t *ci;			/* mutated config_items_wifi */
 };
 
 extern bool config_load(void);
 extern const char parity_to_str(sio_parity_t p);
 extern Config_t cfg;
-
+extern config_item_t *mutate_wifi_ci(config_item_t *ci, int apn);
+extern AccessPoint aps[MAX_APS];
 #endif

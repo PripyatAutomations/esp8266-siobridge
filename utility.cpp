@@ -1,13 +1,22 @@
 #include "siobridge.h"
+
+/* String constants we use more than a few times */
 const char *s_privs_super = "ADMIN";
 const char *s_privs_readonly = "readonly";
 const char *s_privs_normal = "user";
 const char *s_connected = "connected";
 const char *s_disconnected = "disconencted";
 const char *s_redacted = "*****";
+const char *s_false = "false";
+const char *s_true = "true";
+const char *s_none = "NONE";
+const char *s_prio_crit = "CRIT",
+           *s_prio_warn = "WARN",
+           *s_prio_info = "INFO",
+           *s_prio_debug = "DEBUG";
+
 const char *s_8n1 = "8N1", *s_8n2 = "8N2", *s_8e1 = "8E1", *s_8e2 = "8E2", *s_8o1 = "8O1", *s_8o2 = "8O2",
            *s_7n1 = "7N1", *s_7n2 = "7N2", *s_7e1 = "8E1", *s_7e2 = "7E2", *s_7o1 = "7O1", *s_7o2 = "7O2";
-const char *s_none = "NONE";
 
 bool is_ip(String str) {
    for (size_t i = 0; i < str.length(); i++) {
@@ -147,4 +156,32 @@ const char *privilege_str(user_t *u) {
       return s_privs_super;
 
    return s_privs_normal;
+}
+
+const char *bool_to_str(bool b) {
+   if (b == true)
+      return s_true;
+   else
+      return s_false;
+}
+
+const char *log_priority_to_str(logpriority_t priority) {
+   switch (priority) {
+      case P_CRIT:
+         return s_prio_crit;
+         break;
+      case P_WARN:
+         return s_prio_warn;
+         break;
+      case P_INFO:
+         return s_prio_info;
+         break;
+      case P_DEBUG:
+         return s_prio_info;
+         break;
+      default:
+         return s_none;
+         break;
+   }
+   return NULL;
 }

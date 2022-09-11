@@ -6,14 +6,14 @@
 #include "siobridge.h"
 #include "cfg_general.h"
 #include "cfg_ports.h"
-#include "cfg_ap.h"
+#include "cfg_wifi.h"
 #include "cfg_ports.h"
 
 Config_t cfg;
 AccessPoint aps[MAX_APS];
 
 /* Parse a line against the config items array passed */
-bool config_parse_line(config_item_t *ci, const char *key, const char *val, int line) {
+static bool config_parse_line(config_item_t *ci, const char *key, const char *val, int line) {
 //   Serial.printf("config_parse_line: config.txt:%d: %s=%s\r\n", line, key, val);
    /* walk through the available configuration keys and try to find a match */
    for (int i = 0; ci[i].key[0] != '\0'; i++) {
@@ -28,23 +28,34 @@ bool config_parse_line(config_item_t *ci, const char *key, const char *val, int 
                return false;
             case T_INT:
                *ci[i].ival = atoi(val);
+#if	defined(SIO_DEBUG)
+               Serial.printf("* Set <int> %s = %d\r\n", key, ci[i].ival);
+#endif
                break;
             case T_CHAR:
-               Serial.printf("* Setting <char> %s = %s\r\n", key, val);
                memset(ci[i].cval, 0, sizeof(ci[i].cval));
-               strncpy(ci[i].cval, val, sizeof(ci[i].cval) - 1);
+               strncpy(ci[i].cval, val, sizeof(&ci[i].cval));
+#if	defined(SIO_DEBUG)
+               Serial.printf("* Set <char> %s = %s\r\n", key, ci[i].cval);
+#endif
                break;
             case T_BOOL:
-               Serial.printf("* Setting <bool> %s = %s\r\n", key, val);
                *ci[i].bval = parse_bool(val);
+#if	defined(SIO_DEBUG)
+               Serial.printf("* Set <bool> %s = %s\r\n", key, bool_to_str(ci[i].bval));
+#endif
                break;
             case T_FUNC:
-               Serial.printf("* Setting <func> %s = %s\r\n", key, val);
+#if	defined(SIO_DEBUG)
+               Serial.printf("* SetCall <func> %s = %s\r\n", key, val);
+#endif
 //               ci[i].func(key, val, line);
                break;
             case T_FLOAT:
-               Serial.printf("* Setting <float> %s = %s\r\n", key, val);
                *ci[i].fval = (float)sscanf(val, "%f");
+#if	defined(SIO_DEBUG)
+               Serial.printf("* Set <float> %s = %f\r\n", key, ci[i].fval);
+#endif
                break;
             default:
                Serial.printf("* wtf? unknown valtype at config.txt:%d key=%s type=%d (UNKNOWN)\r\n", line, key, ci[i].valtype);
@@ -147,10 +158,23 @@ bool config_load(void) {
 
       if (strncasecmp(section, "general", 7) == 0) {
         config_parse_line(config_items_general, bp, vp, line);
-      } else if (strncasecmp(section, "ap", 2) == 0) {
-        config_parse_line(config_items_general, bp, vp, line);
+      } else if (strncasecmp(section, "wifi", 4) == 0) {
+        char *n = section + 4;
+        int apn = atoi(n);
+
+        /* Create a mutated config_items_t that points to THIS ap's properties */
+        if (aps[apn].ci == NULL)
+           aps[apn].ci = mutate_wifi_ci(config_items_wifi, apn);
+
+        config_parse_line(aps[apn].ci, bp, vp, line);
       } else if (strncasecmp(section, "ports", 5) == 0) {
-        config_parse_line(config_items_general, bp, vp, line);
+        char *n = section + 5;
+        int pn = atoi(n);
+
+        /* Create a mutated config_items_t that points to THIS ap's properties */
+        if (ports[pn].ci == NULL)
+           ports[pn].ci = mutate_ports_ci(config_items_ports, pn);
+        config_parse_line(ports[pn].ci, bp, vp, line);
       } else if (strncasecmp(section, "users", 5) == 0) {
          user_add(bp, vp);
       } else {
@@ -160,16 +184,52 @@ bool config_load(void) {
    Serial.printf("\r\n* Finished loading configuration\r\n");
 }
 
+static bool config_dump_section(Stream *ch, config_item_t *ci) {
+   for (int i = 0; ci[i].key[0] != '\0'; i++) {
+      switch(ci[i].valtype) {
+         case T_INT:
+            ch->printf("%s=%i\r\n", ci[i].key, ci[i].ival);
+            break;
+         case T_CHAR:
+            ch->printf("%s=%s\r\n", ci[i].key, ci[i].cval);
+            break;
+         case T_BOOL:
+            ch->printf("%s=%s\r\n", ci[i].key, bool_to_str(ci[i].bval));
+         case T_FLOAT:
+            ch->printf("%s=%f\r\n", ci[i].key, ci[i].fval);
+            break;
+         case T_FUNC:
+            if (ci[i].dump_func != NULL) {
+               ci[i].dump_func(ch);
+            }
+            break;
+         case T_NONE:
+         default:
+            break;
+      }
+   }
+   return false;
+}
+
+static bool config_dump_ports(Stream *ch) {
+   return false;
+}
+
+static bool config_dump_wifis(Stream *ch) {
+   return false;
+}
+
 /*
  * dump configuration as ASCII text to the desired stream (file, serial port, etc)
  */
 bool config_dump(Stream *ch) {
    ch->printf("!config version %s\r\n\r\n", VERSION);
    ch->printf("[general]\r\n");
-   // config_dump(ch, config_items_general);
+   config_dump_section(ch, config_items_general);
    /* Dump section: general */
    ch->printf("[ports]\r\n");
-   // config_dump_ports(ch);
-   // config_dump_aps(ch);
+   config_dump_ports(ch);
+   ch->printf("[wifi]\r\n");
+   config_dump_wifis(ch);
    return true;
 }

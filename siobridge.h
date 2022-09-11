@@ -1,7 +1,7 @@
 #if	!defined(_SIOBRIDGE_H)
 #define	_SIOBRIDGE_H
 
-#define	VERSION "20220908.01"
+#define	VERSION "20220911.01"
 #include <Arduino.h>
 #include <ESP8266WiFi.h> 
 #include <Hash.h>

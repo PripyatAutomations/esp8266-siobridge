@@ -25,30 +25,30 @@ bool config_parse_line(config_item_t *ci, const char *key, const char *val, int 
          switch (ci[i].valtype) {
             case T_NONE:
                Serial.printf("* wtf? config_item_t %s matches (%i) but valtype == T_NONE ;(\r\n", key, i);
-               break;
+               return false;
             case T_INT:
                *ci[i].ival = atoi(val);
                break;
             case T_CHAR:
+               Serial.printf("* Setting <char> %s = %s\r\n", key, val);
                memset(ci[i].cval, 0, sizeof(ci[i].cval));
                strncpy(ci[i].cval, val, sizeof(ci[i].cval) - 1);
-               Serial.printf("* Setting <char> %s = %s\r\n", key, val);
                break;
             case T_BOOL:
-               *ci[i].bval = parse_bool(val);
                Serial.printf("* Setting <bool> %s = %s\r\n", key, val);
+               *ci[i].bval = parse_bool(val);
                break;
             case T_FUNC:
-               ci[i].func(key, val, line);
                Serial.printf("* Setting <func> %s = %s\r\n", key, val);
+//               ci[i].func(key, val, line);
                break;
             case T_FLOAT:
-               *ci[i].fval = (float)sscanf(val, "%f");
                Serial.printf("* Setting <float> %s = %s\r\n", key, val);
+               *ci[i].fval = (float)sscanf(val, "%f");
                break;
             default:
                Serial.printf("* wtf? unknown valtype at config.txt:%d key=%s type=%d (UNKNOWN)\r\n", line, key, ci[i].valtype);
-               break;
+               return false;
          }
          return true;
       }
@@ -72,7 +72,7 @@ bool config_load(void) {
 #endif
 
    if (cf == NULL) {
-      Serial.printf("ERROR: config.txt missing\r\n");
+      Serial.printf("* ERROR: config.txt missing\r\n");
       flash_dir();
       return false;
    }
@@ -164,5 +164,11 @@ bool config_load(void) {
  * dump configuration as ASCII text to the desired stream (file, serial port, etc)
  */
 bool config_dump(Stream *ch) {
+   ch->printf("!config version %s\r\n\r\n", VERSION);
+   ch->printf("[general]\r\n");
+   /* Dump section: general */
+   ch->printf("[ports]\r\n");
+   // config_dump_ports(chr);
+   // config_dump_aps(ch);
    return true;
 }

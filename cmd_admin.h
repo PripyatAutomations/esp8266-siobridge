@@ -28,8 +28,12 @@ static bool cmd_info(Stream *ch, const char *args[]) {
  * cmd_restart: Restart the device
  */
 static bool cmd_restart(Stream *ch, const char *args[]) {
-   ch->println("* Restarting!");
+   ch->printf("* Restarting!\r\n");
    ESP.restart();
 }
 
+static bool cmd_save_config(Stream *ch, const char *args[]) {
+   ch->printf("* Dumping configuration to %s\r\n", args[0]);
+   return false;
+}
 #endif

@@ -149,7 +149,7 @@ bool config_load(void) {
         config_parse_line(config_items_general, bp, vp, line);
       } else if (strncasecmp(section, "ap", 2) == 0) {
         config_parse_line(config_items_general, bp, vp, line);
-      } else if (strncasecmp(section, "ports", 5) {
+      } else if (strncasecmp(section, "ports", 5) == 0) {
         config_parse_line(config_items_general, bp, vp, line);
       } else if (strncasecmp(section, "users", 5) == 0) {
          user_add(bp, vp);

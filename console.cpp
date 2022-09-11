@@ -78,3 +78,8 @@ bool show_menu(Stream *ch, const char *menu) {
    }
    return true;
 }
+
+/* try to come up with a text representation of the address of the port */
+const char *get_tty_from_stream(Stream *) {
+   return NULL;
+}

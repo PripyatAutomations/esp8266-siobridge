@@ -1,34 +1,53 @@
+[general]
+hostname=gmrs-repeater
 # modes: auto, ap, sta
 wifi_mode=sta
 # .11 (b/g/n)?
-wifi_type=n
+wifi_phymode=n
 # spoof MAC?
 #wifi_mac=00:11:22:33:44:55
-ap=REPEATER ADMIN+
+# SSID for configuration AP
+ap_ssid=REPEATER ADMIN
+ap_pass=
 # Time to wait before trying next AP
 wifi_timeout=10
 # Wait in Configuration AP 300 sec before reboot and try again
 ap_wait=300
 admin_user=admin
-admin_pass=password
+admin_pass=5f4dcc3b5aa765d61d8327deb882cf99
 redact_passwords=no
+syslog=10.11.0.3
+ntp=pool.ntp.org
+dns=1.1.1.1,4.2.2.2,8.8.8.8,9.9.9.9
 
 # serial configuration
 sio0.tx=22
 sio0.rx=21
-sio0.mode=8n1@9600
+sio0.mode=8n1@115200
+sio0.console=yes
+sio0.trusted=yes
+sio0.telnet=10000
 sio1.tx=4
 sio1.rx=3
 sio1.mode=8n1@115200
+sio1.console=no
+sio1.trusted=no
+sio1.telnet=10001
 
 [ap]
 enabled=yes
-ssid=WifiNetwork
-pass=
-dhcp=no
-ip=10.2.3.4
-gw=10.2.3.1
-netmask=255.255.255.0
-dns=1.1.1.1,4.2.2.2,8.8.8.8
-ntp=pool.ntp.org
-syslog=10.11.0.3
+ssid=YourWiFiSSID
+pass=YourWiFiPassword
+dhcp=yes
+
+#[ap1]
+#enabled=no
+#ssid=WifiNetwork
+#pass=
+#dhcp=no
+#ip=10.2.3.4
+#gw=10.2.3.1
+#mask=255.255.255.0
+
+[users]
+super=1b3231655cebb7a1f783eddf27d254ca

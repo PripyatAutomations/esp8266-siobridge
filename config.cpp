@@ -166,9 +166,10 @@ bool config_load(void) {
 bool config_dump(Stream *ch) {
    ch->printf("!config version %s\r\n\r\n", VERSION);
    ch->printf("[general]\r\n");
+   // config_dump(ch, config_items_general);
    /* Dump section: general */
    ch->printf("[ports]\r\n");
-   // config_dump_ports(chr);
+   // config_dump_ports(ch);
    // config_dump_aps(ch);
    return true;
 }

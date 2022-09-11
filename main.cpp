@@ -40,7 +40,7 @@ void main_setup(void) {
    if (config_load() == true) {
       forwarding_setup();
       wifi_setup();
-      syslog_setup();
+      logger_setup();
       ntp_setup();
 //      mdns_setup();
    } else { /* Present a fallback AP mode, so maybe user can fix it */

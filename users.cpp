@@ -20,6 +20,7 @@ user_t *user_add(const char *user, const char *pass) {
     strncpy(p->user, user, sizeof(p->user));
     strncpy(p->pass, pass, sizeof(p->pass));
 
+    Log(P_INFO, "* Added user %s", p->user);
     return p;
 }
 
@@ -29,6 +30,7 @@ user_t *user_find(const char *user) {
           return &users[i];
        }
     }
+    Log(P_DEBUG, "* User lookup for %s failed", user);
     return NULL;
 }
 
@@ -42,6 +44,7 @@ bool user_delete(const char *user) {
 
     /* erase the user entry */
     memset(p, 0, sizeof(user_t));
+    Log(P_DEBUG, "* Deleted user %s", user);
     return true;
 }
 
@@ -56,6 +59,7 @@ bool user_authenticate(Stream *ch, const char *user, const char *pass) {
     if (strcasecmp(u->pass, pass) == 0) {
        Serial.printf("succesful login from %s (%s)\r\n", user, privilege_str(u));
        ch->printf("You are logged in as %s with %s privileges.\r\n", u->user, privilege_str(u));
+       Log(P_WARN, "Login from %s on %s", user, get_tty_from_stream(ch));
        return true;
     }
     return false;

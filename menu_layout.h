@@ -1,3 +1,7 @@
+/*
+ * this file contains out menus in a format easy to work with.
+ * ensure all menus are NULL terminated
+ */
 #if	!defined(_SIOBRIDGE_menu_layout_h)
 #define	_SIOBRIDGE_menu_layout_h
 
@@ -10,7 +14,7 @@ static const char *menu_main_help[] = {
    " I\tInformation screen\r\n",
    " S\tSetup Menu\r\n",
    "\r\n",
-   "X\tLogout\r\n",
+   "Q\tLogout\r\n",
    NULL
 };
 
@@ -18,7 +22,7 @@ MenuItem menu_main[] = {
    { 'C', cmd_connect, NULL },
    { 'I', cmd_info, NULL },
    { 'S', NULL, menu_setup },
-   { 'X', cmd_logout, NULL },
+   { 'Q', cmd_logout, NULL },
    { 0, NULL, NULL }
 };
 
@@ -34,8 +38,8 @@ static const char *menu_wifi_ap_help[] = {
    "P\tPassword\r\n",
    "T\tTimeout\r\n",
    "\r\n",
-   "Q\tBack to Wifi Menu\r\n",
-   "X\tBack to setup menu\r\n",
+   "X\tBack to Wifi Menu\r\n",
+   "Q\tBack to setup menu\r\n",
    NULL
 };
 
@@ -43,8 +47,8 @@ MenuItem menu_wifi_ap[] = {
    { 'P', cmd_wifi_ap_pass, NULL },
    { 'S', cmd_wifi_ap_ssid, NULL },
    { 'T', cmd_wifi_ap_timeout, NULL },
-   { 'Q', NULL, menu_wifi },
-   { 'X', NULL, menu_setup },
+   { 'Q', NULL, menu_setup },
+   { 'X', NULL, menu_wifi },
    { 0, NULL, NULL },
 };
 
@@ -53,7 +57,7 @@ static const char *menu_wifi_sta_help[] = {
    "****************\r\n"
    "* WiFi Station *\r\n",
    "****************\r\n",
-   " The siobridge can store up ",
+   " The siobridge can store up to ",
    STRINGIFY(MAX_APS),
    " access points and auto connect to the strongest one.",
    "\r\n",
@@ -61,8 +65,8 @@ static const char *menu_wifi_sta_help[] = {
    "D\tDelete AP\r\n",
    "L\tList APs (with passwords)\r\n",
    "\r\n",
-   "Q\tBack to Wifi Menu\r\n",
-   "X\tBack to setup menu\r\n",
+   "X\tBack to Wifi Menu\r\n",
+   "Q\tBack to setup menu\r\n",
    NULL
 };
 
@@ -70,8 +74,8 @@ MenuItem menu_wifi_sta[] = {
    { 'A', cmd_wifi_sta_add_ap, NULL },
    { 'D', cmd_wifi_sta_del_ap, NULL },
    { 'L', cmd_wifi_sta_list_aps, NULL },
-   { 'Q', NULL, menu_wifi },
-   { 'X', NULL, menu_setup },
+   { 'Q', NULL, menu_setup },
+   { 'X', NULL, menu_wifi },
    { 0, NULL, NULL },
 };
 
@@ -96,7 +100,7 @@ static const char *menu_wifi_help[] = {
    "L\tLog servers\r\n",
    "N\tDNS servers\r\n",
    "\r\n",
-   "X\tBack to setup menu\r\n",
+   "Q\tBack to setup menu\r\n",
    NULL
 };
 
@@ -110,7 +114,7 @@ MenuItem menu_wifi[] = {
    { 'M', cmd_wifi_netmask, NULL },
    { 'N', cmd_wifi_dns, NULL },
    { 'T', cmd_wifi_ntp, NULL },
-   { 'X', NULL, menu_setup },
+   { 'Q', NULL, menu_setup },
    { 0, NULL, NULL },
 };
 
@@ -123,7 +127,7 @@ static const char *menu_users_help[] = {
    "D\tDelete User\r\n",
    "L\tList Users\r\n",
    "\r\n",
-   "X\tBack to setup menu\r\n",
+   "Q\tBack to setup menu\r\n",
    NULL
 };
 
@@ -131,7 +135,7 @@ MenuItem menu_users[] = {
    { 'A', cmd_user_add, NULL },
    { 'D', cmd_user_delete, NULL },
    { 'L', cmd_user_list, NULL },
-   { 'X', NULL, menu_setup },
+   { 'Q', NULL, menu_setup },
    { 0, NULL, NULL }
 };
 
@@ -145,7 +149,7 @@ static const char *menu_ports_help[] = {
   "D\tDelete Port\r\n",
   "L\tList Ports\r\n",
   "\r\n",
-  "X\tBack to setup menu\r'n",
+  "Q\tBack to setup menu\r'n",
   NULL
 };
 
@@ -153,7 +157,7 @@ MenuItem menu_ports[] = {
    { 'A', cmd_port_add, NULL },
    { 'D', cmd_port_delete, NULL },
    { 'L', cmd_port_list, NULL },
-   { 'X', NULL, menu_setup },
+   { 'Q', NULL, menu_setup },
    { 0, NULL, NULL }
 };
 
@@ -171,7 +175,7 @@ static const char *menu_setup_help[] = {
    "U\tUser Management\r\n",
    "R\tRestart bridge\r\n",
    "\r\n",
-   "X\tBack to main menu\r\n",
+   "Q\tBack to main menu\r\n",
    NULL
 };
 
@@ -181,7 +185,7 @@ MenuItem menu_setup[] = {
    { 'S', cmd_save_config, NULL },
    { 'U', NULL, menu_users },
    { 'W', NULL, menu_wifi },
-   { 'X', NULL, menu_main },
+   { 'Q', NULL, menu_main },
    { 0, NULL, NULL },
 };
 

@@ -128,19 +128,21 @@ void http_setup(void) {
    httpServer.onFileUpload(onUpload);
    httpServer.onRequestBody(onBody);
 
-#if	0
    /*************
     * Setup www *
     *************/
+#if	0
    httpServer.onNotFound([]() {
       httpServer.send(404, "text/html", "That page couldn't found...<br><a href=\"/\">Click Here</a> to go back<br/>\n");
    });
+#endif
+
    /* Point / at index.html */
 #if	defined(USE_SPIFFS)
    httpServer.serveStatic("/", SPIFFS, "/index.html");
 #endif
 #if	defined(USE_LITTLEFS)
-   httpServer.serveStatic("/", SPIFFS, "/index.html");
+   httpServer.serveStatic("/", LITTLEFS, "/index.html");
 #endif
 
    /* add static files */
@@ -160,6 +162,7 @@ void http_setup(void) {
       httpServer.serveStatic(file.name(), SPIFFS, file.name());
    }
 
+#if	0
    httpServer.on("/wifi-config", []() {
       String content = "Please connect to ";
              content += AP_SSID;
@@ -173,6 +176,7 @@ void http_setup(void) {
       return;
    });
 #endif
+
 #if	0
    // OTA callbacks
    ArduinoOTA.onStart([]() {

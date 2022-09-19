@@ -35,13 +35,13 @@ bool cfg_port_trusted(const char *key, const char *val, int line) {
 
 config_item_t config_items_ports[] = {
    /*    KEY   		 TYPE   FUNC  			DUMP 		IVAL  		   CVAL   	BVAL 			FVAL*/
-   { "console",		T_FUNC, NULL,		 	NULL,		NULL,		NULL,		NULL,			NULL },
+   { "console",		T_BOOL, NULL,		 	NULL,		NULL,		NULL,		NULL,			NULL },
    { "mode",		T_FUNC, NULL,			NULL,		NULL,		NULL,		NULL,			NULL },
-   { "rx",		T_FUNC,	NULL,			NULL,		NULL,		NULL,		NULL,			NULL },
-   { "telnet",		T_FUNC, NULL,	 		NULL,		NULL,		NULL,		NULL,			NULL },
-   { "transport",	T_FUNC, NULL,		 	NULL,		NULL,		NULL,		NULL,			NULL },
-   { "trusted",		T_FUNC, NULL,	 		NULL,		NULL,		NULL,		NULL,			NULL },
-   { "tx",		T_FUNC,	NULL,			NULL,		NULL,		NULL,		NULL,			NULL },
+   { "rx",		T_INT,	NULL,			NULL,		NULL,		NULL,		NULL,			NULL },
+   { "telnet",		T_INT,  NULL,	 		NULL,		NULL,		NULL,		NULL,			NULL },
+   { "transport",	T_CHAR, NULL,		 	NULL,		NULL,		NULL,		NULL,			NULL },
+   { "trusted",		T_BOOL, NULL,	 		NULL,		NULL,		NULL,		NULL,			NULL },
+   { "tx",		T_INT,	NULL,			NULL,		NULL,		NULL,		NULL,			NULL },
    { NULL,		T_NONE,	NULL,			NULL,		NULL,		NULL,		NULL,			NULL }
 };
 
@@ -53,6 +53,11 @@ config_item_t *mutate_ports_ci(config_item_t *ci, int pn) {
 
    if (pn < 0 || pn > MAX_APS)
       return NULL;
+
+   if (ports[pn].ci != NULL)
+      return ports[pn].ci;
+
+   ports[pn].ci = ci;
 
    if ((d = (config_item_t *)malloc(sizeof(ci))) == NULL) {
       Serial.printf("OOM in mutate_ports_ci()! :(\r\n");

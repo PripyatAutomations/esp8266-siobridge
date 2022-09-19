@@ -63,6 +63,7 @@ config_item_t config_items_general[] = {
    { "ap_pass",		T_CHAR, NULL, 	NULL,	NULL, 		   cfg.wifi_ap_pass, NULL,		NULL },
    { "ap_ssid", 	T_CHAR, NULL, 	NULL,	NULL, 		   cfg.wifi_ap_ssid, NULL,		NULL },
    { "ap_wait", 	T_INT,	NULL, 	NULL,	&cfg.wifi_ap_wait,  NULL, 	NULL,			NULL },
+   { "dns", 		T_CHAR, NULL,	NULL,	NULL,		   cfg.dns_host, NULL,			NULL },
    { "hostname", 	T_CHAR, NULL, 	NULL,	NULL,		   cfg.hostname, NULL,			NULL },
    { "http_port", 	T_INT,	NULL, 	NULL,	&cfg.http_port,     NULL,	NULL,			NULL },
    { "redact_passwords",T_BOOL, NULL, 	NULL,	NULL, 		   NULL,	&cfg.redact_passwords,	NULL },

@@ -10,9 +10,24 @@ HTTP_PWD=password
 OTA_PWD=admin
 
 LIBS += ESPAsyncTCP ESPAsyncWebServer esp8266_mdns EspSyslog ArduinoOTA GDBStub
-include *.mk
+
 world: all
 
+include config.mk
+include makeEspArduino.mk
+
+all: host-all espduino-all
+
+host-all:
+	${MAKE} -C host all
+
+host-install:
+	${MAKE} -C host install
+
+host-clean:
+	${MAKE} -C host clean
+
+clean: espduino-clean
 install-fw: upload upload-fs
 
 connect:

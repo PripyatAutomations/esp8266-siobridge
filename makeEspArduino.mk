@@ -416,7 +416,7 @@ $(LIB_OUT_FILE): $(filter-out $(BUILD_DIR)/$(MAIN_NAME).cpp$(OBJ_EXT),$(USER_OBJ
 	$(LIB_COM) $(LIB_OUT_FILE) $^
 
 # Miscellaneous operations
-clean:
+espduino-clean:
 	@echo Removing all build files
 	rm -rf "$(BUILD_DIR)" $(FILES_TO_CLEAN)
 
@@ -458,7 +458,7 @@ vscode: all
 	perl $(__TOOLS_DIR)/vscode.pl -n $(MAIN_NAME) -m "$(_MAKE_COM)" -w "$(VS_CODE_DIR)" -i "$(VSCODE_INC_EXTRA)" -p "$(VSCODE_PROJ_NAME)" $(CPP_COM)
 
 # Create shortcut command for running this file
-install:
+espduino-install:
 	@echo Creating command \"$(_SCRIPT)\" in $(BIN_DIR)
 	sudo sh -c 'echo $(_MAKE_COM) "\"\$$@\"" >$(BIN_DIR)/$(_SCRIPT)'
 	sudo chmod +x $(BIN_DIR)/$(_SCRIPT)
@@ -490,7 +490,7 @@ endif
 
 # Main default rule, build the executable
 .PHONY: all
-all: $(BUILD_DIR) $(ARDUINO_MK) prebuild $(MAIN_EXE)
+espduino-all: $(BUILD_DIR) $(ARDUINO_MK) prebuild $(MAIN_EXE)
 
 # Prebuild is currently only mandatory for esp32
 USE_PREBUILD ?= $(if $(IS_ESP32),1,)
@@ -505,8 +505,8 @@ help: $(ARDUINO_MK)
 	@echo "This file can either be used directly or included from another makefile"
 	@echo ""
 	@echo "The following targets are available:"
-	@echo "  all                  (default) Build the project application"
-	@echo "  clean                Remove all intermediate build files"
+	@echo "  espduino-all         (default) Build the project application"
+	@echo "  espduino-clean       Remove all intermediate build files"
 	@echo "  lib                  Build a library with all involved object files"
 	@echo "  flash                Build and and flash the project application"
 	@echo "  flash_fs             Build and and flash file system (when applicable)"
@@ -523,7 +523,7 @@ help: $(ARDUINO_MK)
 	@echo "  list_lib             Show a list of used solurce files and include directories"
 	@echo "  set_git_version      Setup ESP Arduino git repo to a the tag version"
 	@echo "                         specified via REQ_GIT_VERSION"
-	@echo "  install              Create the commands \"espmake\" and \"espmake32\""
+	@echo "  espduino-install     Create the commands \"espmake\" and \"espmake32\""
 	@echo "  vscode               Create config file for Visual Studio Code and launch"
 	@echo "  ram_usage            Show global variables RAM usage"
 	@echo "  obj_info             Show memory usage per object file"

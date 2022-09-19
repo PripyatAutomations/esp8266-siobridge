@@ -27,11 +27,11 @@
 #define	MAX_USERS	5		/* maximum configured users */
 #define	MAX_APS		4		/* maximum APs for WiFiMulti */
 #define	MAX_SESSIONS	5		/* maximum concurrent sessions */
+#define	MAX_CONS_BUFFER	200		/* maximum console buffer */
 #define	L_ADMIN_USER	24
 #define	L_ADMIN_PASS	32
 #define	L_WIFI_SSID	32
 #define	L_WIFI_PASS	32
-
 
 typedef struct config_item config_item_t;
 enum config_item_type { T_NONE = 0, T_CHAR, T_INT, T_BOOL, T_FLOAT, T_FUNC };
@@ -51,15 +51,29 @@ struct config_item {
 enum sio_parity { PARITY_NONE, PARITY_ODD, PARITY_EVEN };
 typedef enum sio_parity sio_parity_t;
 
+enum sio_port_type {
+   P_SERIAL,
+   P_I2C,
+   P_SPI
+};
+typedef enum sio_port_type sio_port_type_t;
+
 typedef struct sio_port sio_port_t;
 struct sio_port {
-   bool configured, enabled;
+   char name[16];		/* port name string */
+   sio_port_type_t type;	/* What type of interface is this port? */
+   Stream *ch;			/* channel */
+   bool configured, enabled, send_to_syslog;
    unsigned int tx_pin, rx_pin;
    unsigned int dtr_pin, cts_pin, rts_pin;
    config_item_t *ci;			/* mutated config_item_t structure */
    int telnet_port;
    int refcnt;			/* connected users */
+   /* buffering */
    int unread_buffers;		/* saved data waiting to be read? */
+   bool console_active;
+   char console_buffer_rx[MAX_CONS_BUFFER];
+   char console_buffer_tx[MAX_CONS_BUFFER];
 
    /* 8N1, 7E1, etc */
    unsigned int baud_rate;

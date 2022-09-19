@@ -33,8 +33,9 @@ static bool config_parse_line(config_item_t *ci, const char *key, const char *va
 #endif
                break;
             case T_CHAR:
+               Serial.printf("<%lu>\r\n", sizeof(ci[i].cval));
                memset(ci[i].cval, 0, sizeof(ci[i].cval));
-               strncpy(ci[i].cval, val, sizeof(&ci[i].cval));
+               strncpy(ci[i].cval, val, sizeof(ci[i].cval));
 #if	defined(SIO_DEBUG)
                Serial.printf("* Set <char> %s = %s\r\n", key, ci[i].cval);
 #endif
@@ -52,7 +53,7 @@ static bool config_parse_line(config_item_t *ci, const char *key, const char *va
 //               ci[i].func(key, val, line);
                break;
             case T_FLOAT:
-               *ci[i].fval = (float)sscanf(val, "%f");
+               sscanf(val, "%llu", *ci[i].fval);
 #if	defined(SIO_DEBUG)
                Serial.printf("* Set <float> %s = %f\r\n", key, ci[i].fval);
 #endif
@@ -148,7 +149,7 @@ bool config_load(void) {
       if (*bp == '[' &&  *(ep-2) == ']') {
          memset(section, 0, sizeof(section));
          strncpy(section, bp + 1, (ep - bp) - 3);
-//         Serial.printf("Opening section %s\r\n", section);
+         Serial.printf("Opening section %s\r\n", section);
          continue;
       }
 
@@ -161,6 +162,12 @@ bool config_load(void) {
       } else if (strncasecmp(section, "wifi", 4) == 0) {
         char *n = section + 4;
         int apn = atoi(n);
+
+
+        if (apn > MAX_APS) {
+           Serial.printf("apn (%d) > MAX_APS (%d)\r\n", apn, MAX_APS);
+           continue;
+        }
 
         /* Create a mutated config_items_t that points to THIS ap's properties */
         if (aps[apn].ci == NULL)
@@ -178,10 +185,11 @@ bool config_load(void) {
       } else if (strncasecmp(section, "users", 5) == 0) {
          user_add(bp, vp);
       } else {
-         Serial.printf("\r\n* Invalid configuration section |%s| in config.txt:%s\r\n", section, line);
+         Serial.printf("* Invalid configuration section |%s| in config.txt:%s\r\n", section, line);
       }
    }
-   Serial.printf("\r\n* Finished loading configuration\r\n");
+   Serial.printf("* Finished loading configuration\r\n");
+   return true;
 }
 
 static bool config_dump_section(Stream *ch, config_item_t *ci) {
@@ -212,10 +220,12 @@ static bool config_dump_section(Stream *ch, config_item_t *ci) {
 }
 
 static bool config_dump_ports(Stream *ch) {
+   ch->printf("[ports]\r\n");
    return false;
 }
 
-static bool config_dump_wifis(Stream *ch) {
+static bool config_dump_wifi(Stream *ch) {
+   ch->printf("[wifi]\r\n");
    return false;
 }
 
@@ -226,10 +236,7 @@ bool config_dump(Stream *ch) {
    ch->printf("!config version %s\r\n\r\n", VERSION);
    ch->printf("[general]\r\n");
    config_dump_section(ch, config_items_general);
-   /* Dump section: general */
-   ch->printf("[ports]\r\n");
    config_dump_ports(ch);
-   ch->printf("[wifi]\r\n");
-   config_dump_wifis(ch);
+   config_dump_wifi(ch);
    return true;
 }

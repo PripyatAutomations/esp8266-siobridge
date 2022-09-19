@@ -15,9 +15,6 @@
 #include <functional>
 #include "config.h"
 #include "users.h"
-
-extern bool need_reboot;
-
 #include "logger.h"
 #include "wifi.h"
 #include "telnet.h"
@@ -28,5 +25,9 @@ extern bool need_reboot;
 #include "console.h"
 #include "utility.h"
 #include "ntp.h"
+#include "ansi.h"
+#include "telnet.h"
+
+extern bool need_reboot;
 
 #endif

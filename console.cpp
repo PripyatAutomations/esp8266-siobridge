@@ -56,11 +56,13 @@ bool show_menu(Stream *ch, const char *menu) {
    const Menu *mp = NULL;
    const char *r = NULL;
 
+   // walk through all the available menus
    for (int i = 0; menus[i].name != NULL; i++) {
-       if (strcasecmp(menu, menus[i].name) == 0) {
-          mp = &menus[i];
-          break;
-       }
+      // compare the name
+      if (strcasecmp(menu, menus[i].name) == 0) {
+         mp = &menus[i];
+         break;
+      }
    }
    
    if (!mp) {
@@ -68,8 +70,10 @@ bool show_menu(Stream *ch, const char *menu) {
       return false;
    }
 
+   // Display the help text
    show_help(ch, menu);
 
+   // This is stupid.. we need to be nonblocking...
    while(true) {
       r = console_prompt(ch, menu);
 
@@ -79,7 +83,29 @@ bool show_menu(Stream *ch, const char *menu) {
    return true;
 }
 
+int get_port_from_stream(Stream *ch) {
+   for (int i = 0; cfg.ports[i].configured != false; i++) {
+      // match?
+      if (cfg.ports[i].ch == ch) {
+         if (cfg.ports[i].name[0] != '\0') {
+            // return the name
+            return i;
+         }
+      }
+   }
+   return -1;
+}
+
 /* try to come up with a text representation of the address of the port */
-const char *get_tty_from_stream(Stream *) {
+const char *get_tty_from_stream(Stream *ch) {
+   for (int i = 0; cfg.ports[i].configured != false; i++) {
+      // match?
+      if (cfg.ports[i].ch == ch) {
+         if (cfg.ports[i].name[0] != '\0') {
+            // return the name
+            return cfg.ports[i].name;
+         }
+      }
+   }
    return NULL;
 }

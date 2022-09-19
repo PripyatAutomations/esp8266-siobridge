@@ -46,10 +46,6 @@ const char *sio_connected(int port) {
    return s_disconnected;
 }
 
-extern bool is_ip(String str);
-extern String ip_to_string(IPAddress ip);
-extern const char *sio_connected(int port);
-extern unsigned int sio_baud(int port);
 
 unsigned int sio_baud(int port) {
    return cfg.ports[port].baud_rate;
@@ -58,13 +54,6 @@ unsigned int sio_baud(int port) {
 unsigned int sio_unread_buffers(int port) {
    return cfg.ports[port].unread_buffers;
 }
-
-extern bool is_ip(String str);
-extern String ip_to_string(IPAddress ip);
-extern const char *sio_connected(int port);
-extern unsigned int sio_baud(int port);
-extern unsigned int sio_unread_buffers(int port);
-extern const char *sio_mode_str(int port);
 
 const char *sio_mode_str(int port) {
    sio_port_t *p = &cfg.ports[port];

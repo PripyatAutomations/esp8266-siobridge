@@ -6,39 +6,36 @@
  */
 #include "siobridge.h"
 
-session_t *session_start(Stream *ch, SIOuser *u) {
-   session_t *s = (session_t *)malloc(sizeof(session_t));
-   memset(s, 0, sizeof(0));
+SIOsession *sessions[MAX_SESSIONS];
 
+SIOsession::SIOsession(Stream *ch, SIOuser *u) {
    /* A user has succesfully authenticated, start their session */
-   u->refcnt++;
-   s->user = u;
-   s->chan = ch;
-   return s;
+   this->user = u;
+   this->user->refcnt++;
+   this->chan = ch;
 }
 
-bool session_end(session_t *s) {
-   s->user->refcnt--;
+bool SIOsession::End(void) {
+   this->user->refcnt--;
 
    /* XXX: Close active ports */
    for (int i = 0; i < MAX_PORTS; i++) {
-      session_detach_port(s, &cfg.ports[i]);
+      this->DetachPort(&cfg.ports[i]);
    }
-   memset(s, 0, sizeof(session_t));
 }
 
-bool session_attach_port(session_t *session, sio_port_t *port) {
+bool SIOsession::AttachPort(sio_port_t *port) {
    return true;
 }
 
-bool session_detach_port(session_t *session, sio_port_t *port) {
+bool SIOsession::DetachPort(sio_port_t *port) {
    return true;
 }
 
-session_t *session_find(Stream *ch) {
+SIOsession *session_find(Stream *ch) {
    for (int i = 0; i < MAX_SESSIONS; i++) {
-      if (sessions[i].chan == ch)
-         return &sessions[i];
+      if (sessions[i]->chan == ch)
+         return sessions[i];
    }
    return NULL;
 }

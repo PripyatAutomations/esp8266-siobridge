@@ -14,19 +14,20 @@
 #include <Hash.h>
 #include <functional>
 #include "config.h"
+#include "permissions.h"
 #include "users.h"
-#include "logger.h"
-#include "wifi.h"
-#include "telnet.h"
-#include "fs.h"
-#include "mdns.h"
-#include "sessions.h"
-#include "forwarding.h"
-#include "console.h"
-#include "utility.h"
-#include "ntp.h"
 #include "ansi.h"
+#include "console.h"
+#include "fs.h"
+#include "forwarding.h"
+#include "logger.h"
 #include "telnet.h"
+#include "mdns.h"
+#include "ntp.h"
+#include "sessions.h"
+#include "telnet.h"
+#include "utility.h"
+#include "wifi.h"
 
 extern bool need_reboot;
 

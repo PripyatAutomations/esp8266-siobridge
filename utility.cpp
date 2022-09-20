@@ -1,9 +1,6 @@
 #include "siobridge.h"
 
 /* String constants we use more than a few times */
-const char *s_privs_super = "ADMIN";
-const char *s_privs_readonly = "readonly";
-const char *s_privs_normal = "user";
 const char *s_connected = "connected";
 const char *s_disconnected = "disconencted";
 const char *s_redacted = "*****";
@@ -135,16 +132,6 @@ const char parity_to_str(sio_parity_t p) {
       return 'E';
    else if (p == PARITY_ODD)
       return 'O';
-}
-
-const char *privilege_str(user_t *u) {
-   if (u->readonly)
-      return s_privs_readonly;
-
-   if (u->superuser)
-      return s_privs_super;
-
-   return s_privs_normal;
 }
 
 const char *bool_to_str(bool b) {

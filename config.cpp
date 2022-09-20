@@ -183,7 +183,25 @@ bool config_load(void) {
            ports[pn].ci = mutate_ports_ci(config_items_ports, pn);
         config_parse_line(ports[pn].ci, bp, vp, line);
       } else if (strncasecmp(section, "users", 5) == 0) {
-         user_add(bp, vp);
+         /* try to find a ',' after the password */
+         char *pp = strchr(vp, ',');
+         int privs = 0;
+
+         /* does our pointer go somewhere reasonable?? */
+         if (pp != NULL) {
+            *vp = '\0';
+            vp++;
+            privs = atoi(vp);
+         } else { /* let us not modify the NULL pointer again, ok? */
+            int privs = PRIV_SUPERUSER; /* ok, make them superuser... */
+            Serial.printf("* New user %s doesn't have a privilege level specified, defaulting to superuser (%d)\r\n", bp, privs);
+            Serial.printf("* To change this behaviour, please append \",n\" where n is the access level 0-15, to the end of the user entry at config.txt:%d\r\n", line);
+         }
+
+         int f = find_users_slot();
+
+         if (f > 0)
+            users[f] = new SIOuser(bp, vp, privs);
       } else {
          Serial.printf("* Invalid configuration section |%s| in config.txt:%s\r\n", section, line);
       }

@@ -28,7 +28,6 @@ extern const char *sio_mode_str(int port);
 extern const char *redact_password(const char *p);
 extern bool parse_bool(const char *str);
 extern const char parity_to_str(sio_parity_t p);
-extern const char *privilege_str(user_t *u);
 extern const char *bool_to_str(bool b);
 const char *log_priority_to_str(logpriority_t priority);
 

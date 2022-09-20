@@ -6,7 +6,7 @@
  */
 #include "siobridge.h"
 
-session_t *session_start(Stream *ch, user_t *u) {
+session_t *session_start(Stream *ch, SIOuser *u) {
    session_t *s = (session_t *)malloc(sizeof(session_t));
    memset(s, 0, sizeof(0));
 

@@ -27,7 +27,7 @@ host-install:
 host-clean:
 	${MAKE} -C host clean
 
-clean: espduino-clean
+clean: espduino-clean host-clean
 install-fw: upload upload-fs
 
 connect:

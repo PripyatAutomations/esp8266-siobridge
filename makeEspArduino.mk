@@ -67,7 +67,7 @@ HTTP_USR ?= password
 HTTP_OPT ?= --progress-bar -o /dev/null
 
 # Output directory
-BUILD_ROOT ?= /tmp/mkESP
+BUILD_ROOT ?= .build
 BUILD_DIR ?= $(BUILD_ROOT)/$(MAIN_NAME)_$(BOARD)
 
 # File system and corresponding disk directories

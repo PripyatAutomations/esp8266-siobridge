@@ -1,6 +1,4 @@
-#include <string.h>
-#include "repeater.h"
-#include "sha1.h"
+#include "siobridge.h"
 
 #define SHA1_K0 0x5a827999
 #define SHA1_K20 0x6ed9eba1
@@ -32,7 +30,7 @@ uint8_t sha1_keyBuffer[BLOCK_LENGTH];
 uint8_t sha1_innerHash[HASH_LENGTH];
 
 void sha1_init(void) {
-  memcpy(state.b, sha1_InitState, HASH_LENGTH);
+  memcpy(sha1_state.b, sha1_InitState, HASH_LENGTH);
   sha1_byteCount = 0;
   sha1_bufferOffset = 0;
 }
@@ -45,21 +43,21 @@ void sha1_hashblock(void) {
   uint8_t i;
   uint32_t a,b,c,d,e,t;
 
-  a=state.w[0];
-  b=state.w[1];
-  c=state.w[2];
-  d=state.w[3];
-  e=state.w[4];
-  for (i=0; i<80; i++) {
-    if (i>=16) {
+  a = sha1_state.w[0];
+  b = sha1_state.w[1];
+  c = sha1_state.w[2];
+  d = sha1_state.w[3];
+  e = sha1_state.w[4];
+  for (i = 0; i < 80; i++) {
+    if (i >= 16) {
       t = sha1_buffer.w[(i+13)&15] ^ sha1_buffer.w[(i+8)&15] ^ sha1_buffer.w[(i+2)&15] ^ sha1_buffer.w[i&15];
       sha1_buffer.w[i&15] = rol32(t,1);
     }
-    if (i<20) {
+    if (i < 20) {
       t = (d ^ (b & (c ^ d))) + SHA1_K0;
-    } else if (i<40) {
+    } else if (i < 40) {
       t = (b ^ c ^ d) + SHA1_K20;
-    } else if (i<60) {
+    } else if (i < 60) {
       t = ((b & c) | (d & (b | c))) + SHA1_K40;
     } else {
       t = (b ^ c ^ d) + SHA1_K60;
@@ -71,15 +69,15 @@ void sha1_hashblock(void) {
     b=a;
     a=t;
   }
-  state.w[0] += a;
-  state.w[1] += b;
-  state.w[2] += c;
-  state.w[3] += d;
-  state.w[4] += e;
+  sha1_state.w[0] += a;
+  sha1_state.w[1] += b;
+  sha1_state.w[2] += c;
+  sha1_state.w[3] += d;
+  sha1_state.w[4] += e;
 }
 
-void addUncounted(uint8_t data) {
-  sha1_buffer.b[bufferOffset ^ 3] = data;
+void sha1_addUncounted(uint8_t data) {
+  sha1_buffer.b[sha1_bufferOffset ^ 3] = data;
   sha1_bufferOffset++;
 
   if (sha1_bufferOffset == BLOCK_LENGTH) {
@@ -97,7 +95,7 @@ void sha1_write(uint8_t data) {
 
 void sha1_writeArray(uint8_t *buffer, uint8_t size){
     while (size--) {
-        sha1_write(*buffer++);
+       sha1_write(*buffer++);
     }
 }
 
@@ -112,11 +110,11 @@ void pad(void) {
   sha1_addUncounted(0); // We're only using 32 bit lengths
   sha1_addUncounted(0); // But SHA-1 supports 64 bit lengths
   sha1_addUncounted(0); // So zero pad the top bits
-  sha1_addUncounted(byteCount >> 29); // Shifting to multiply by 8
-  sha1_addUncounted(byteCount >> 21); // as SHA-1 supports bitstreams as well as
-  sha1_addUncounted(byteCount >> 13); // byte.
-  sha1_addUncounted(byteCount >> 5);
-  sha1_addUncounted(byteCount << 3);
+  sha1_addUncounted(sha1_byteCount >> 29); // Shifting to multiply by 8
+  sha1_addUncounted(sha1_byteCount >> 21); // as SHA-1 supports bitstreams as well as
+  sha1_addUncounted(sha1_byteCount >> 13); // byte.
+  sha1_addUncounted(sha1_byteCount >> 5);
+  sha1_addUncounted(sha1_byteCount << 3);
 }
 
 uint8_t* sha1_result(void) {
@@ -127,16 +125,16 @@ uint8_t* sha1_result(void) {
   uint8_t i;
   for (i=0; i<5; i++) {
     uint32_t a,b;
-    a=state.w[i];
-    b=a<<24;
-    b|=(a<<8) & 0x00ff0000;
-    b|=(a>>8) & 0x0000ff00;
-    b|=a>>24;
-    state.w[i]=b;
+    a = sha1_state.w[i];
+    b = a << 24;
+    b |= (a << 8) & 0x00ff0000;
+    b |= (a >> 8) & 0x0000ff00;
+    b |= a >> 24;
+    sha1_state.w[i] = b;
   }
 
   // Return pointer to hash (20 characters)
-  return state.b;
+  return sha1_state.b;
 }
 
 #define HMAC_IPAD 0x36
@@ -159,7 +157,7 @@ void sha1_initHmac(const uint8_t* key, uint8_t keyLength) {
   // Start inner hash
   sha1_init();
   for (i=0; i<BLOCK_LENGTH; i++) {
-    sha1_write(keyBuffer[i] ^ HMAC_IPAD);
+    sha1_write(sha1_keyBuffer[i] ^ HMAC_IPAD);
   }
 }
 
@@ -172,10 +170,10 @@ uint8_t* sha1_resultHmac(void) {
   sha1_init();
 
   for (i=0; i<BLOCK_LENGTH; i++)
-     sha1_write(keyBuffer[i] ^ HMAC_OPAD);
+     sha1_write(sha1_keyBuffer[i] ^ HMAC_OPAD);
 
   for (i=0; i<HASH_LENGTH; i++)
-     sha1_write(innerHash[i]);
+     sha1_write(sha1_innerHash[i]);
 
   return sha1_result();
 }

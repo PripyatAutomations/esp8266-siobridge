@@ -6,7 +6,9 @@
 #include "siobridge.h"
 
 #include "cmd_admin.h"
+#include "cmd_fs.h"
 #include "cmd_port.h"
+#include "cmd_relays.h"
 #include "cmd_session.h"
 #include "cmd_wifi.h"
 #include "cmd_user.h"

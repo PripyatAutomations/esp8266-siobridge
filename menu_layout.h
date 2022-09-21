@@ -5,13 +5,15 @@
 #if	!defined(_SIOBRIDGE_menu_layout_h)
 #define	_SIOBRIDGE_menu_layout_h
 
-extern MenuItem menu_setup[], menu_wifi[];
+extern MenuItem menu_setup[], menu_wifi[], menu_relays[];
 static const char *menu_main_help[] = {
    "**********************************\r\n",
    "* esp8266-siobridge console help *\r\n",
    "**********************************\r\n\r\n",
    " C #\tConnect to port <#>\r\n",
    " I\tInformation screen\r\n",
+   " R\tRelays/GPIO control\r\n",
+   "\r\n",
    " S\tSetup Menu\r\n",
    "\r\n",
    "Q\tLogout\r\n",
@@ -21,6 +23,7 @@ static const char *menu_main_help[] = {
 MenuItem menu_main[] = {
    { 'C', cmd_connect, NULL },
    { 'I', cmd_info, NULL },
+   { 'R', NULL, menu_relays },
    { 'S', NULL, menu_setup },
    { 'Q', cmd_logout, NULL },
    { 0, NULL, NULL }
@@ -186,13 +189,72 @@ MenuItem menu_setup[] = {
    { 'U', NULL, menu_users },
    { 'W', NULL, menu_wifi },
    { 'Q', NULL, menu_main },
-   { 0, NULL, NULL },
+   {   0, NULL, NULL },
+};
+
+static const char *menu_setup_relays_help[] = {
+   "********************\r\n"
+   "* Relay/GPIO setup *\r\n",
+   "********************\r\n"
+   "\r\n",
+   "X\tBack to GPIO menu\r\n",
+   "Q\tBack to Setup menu\r\n",
+   NULL
+};
+
+MenuItem menu_setup_relays[] = {
+   { 'X', NULL, menu_relays },
+   { 'Q', NULL, menu_setup },
+   { 0,   NULL,  NULL }
+};
+
+static const char *menu_relays_help[] = {
+   "***************\r\n",
+   "* Relays/GPIO *\r\n",
+   "***************\r\n",
+   "\r\n",
+   "L\tList\r\n",
+   "S\tSetup\r\n",
+   "\r\n",
+   "Q\tBack to main menu\r\n",
+   NULL
+};
+MenuItem menu_relays[] = {
+   { 'L', cmd_relays_list, NULL },
+   { 'S', NULL, menu_setup_relays },
+   { 'Q', NULL, menu_main },
+   { 0, NULL, NULL }
+};
+
+
+static const char *menu_fs_help[] = {
+  "**************\r\n",
+  "* Filesystem *\r\n",
+  "**************\r\n",
+  "\r\n",
+  "D\tDownload from fs\r\n",
+  "L\tList fs\r\n",
+  "U\tUpload to fs\r\n",
+  "\r\n",
+  "F\tFormat Flashfs\r\n",
+  "Q\tBack to main menu\r\n",
+  NULL
+};
+MenuItem menu_fs[] = {
+  { 'D', cmd_fs_download, NULL },
+  { 'L', cmd_fs_list, NULL },
+  { 'U', cmd_fs_upload, NULL },
+  { 'Q', NULL, menu_main },
+  {   0, NULL, NULL }
 };
 
 //////////////////////////////
 Menu menus[] = {
   { "main",  menu_main, menu_main_help },
+  { "fs", menu_fs, menu_fs_help },
   { "ports", menu_ports, menu_ports_help },
+  { "relays", menu_relays, menu_relays_help },
+  { "relays_setup", menu_setup_relays, menu_setup_relays_help },
   { "setup", menu_setup, menu_setup_help },
   { "users", menu_users, menu_users_help },
   { "wifi", menu_wifi, menu_wifi_help },
